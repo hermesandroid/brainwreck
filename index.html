@@ -199,7 +199,15 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD MODE</span></label>
 </div>
 <h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
-<div id="lvList" style="margin:10px 0"></div>
+<div class="desk-layout">
+  <div class="desk-main">
+    <div id="lvList" style="margin:10px 0"></div>
+  </div>
+  <div class="desk-side" id="deskSidebar">
+    <div class="info" style="margin-bottom:6px">🏆 Live Leaderboard</div>
+    <div class="lb" id="deskLB"></div>
+  </div>
+</div>
 <button class="b o" onclick="showLB('global')">🌍 Global</button>
 <button class="b o" id="btnCountry" onclick="showLB('country')">🏳️ Country</button>
 <button class="b s" style="margin-top:4px" onclick="logout()">Change Player</button>
@@ -345,6 +353,23 @@ function showMenu(){
     d.innerHTML=`<div class="emo">${v.e}</div><div class="info"><div class="nm">${v.n}</div><div class="ds">${v.d}</div></div><div class="st">${lk?'🔒':'★'.repeat(s)+'☆'.repeat(3-s)}</div>`;
     if(!lk)d.onclick=()=>startLv(i);l.appendChild(d)
   })
+  // Load sidebar leaderboard (desktop only)
+  loadSidebarLB();
+}
+
+async function loadSidebarLB(){
+  let data=await fetchLB(null);
+  let lb=document.getElementById('deskLB');
+  if(!data.length){lb.innerHTML='<div class="r"><span>No scores yet</span></div>'}
+  else{lb.innerHTML=data.slice(0,10).map((e,i)=>{
+    let me=e.username===G.un;
+    return `<div class="r${me?' me':''}"><span class="rk">#${i+1}</span>
+    <span class="nm">${e.username}<span class="co">${e.country||''}</span></span>
+    <span class="sc">${e.score}</span></div>`
+  }).join('')}
+  // Show sidebar on desktop
+  document.getElementById('deskSidebar').classList.add('show');
+}
 }
 
 // ═══ LEVEL ═══
