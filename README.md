@@ -1,5 +1,7 @@
-its all Hermes.
+Hermesandroid.
+created on OnePlus12
+Hermes + DeepSeek 4
 
-wow 
+https://hermesandroid.github.io/brainwreck
 
-https://hermesandroid.github.io/brainwrec
+enjoy ❤️
