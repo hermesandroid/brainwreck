@@ -236,7 +236,9 @@ const LV = [
 
 // ═══ STATE ═══
 let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0};
-const SB_URL = 'http://localhost:8081';
+const SB_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:8081'
+  : 'https://brainwreck.onrender.com';
 
 function ld(){try{let d=JSON.parse(localStorage.getItem('bw')||'{}');if(d.un)G.un=d.un;if(d.sc)G.sc=d.sc;if(d.st)G.stars=d.st;if(d.co)G.country=d.co}catch(e){}}
 function sv(){localStorage.setItem('bw',JSON.stringify({un:G.un,sc:G.sc,st:G.stars,co:G.country}))}

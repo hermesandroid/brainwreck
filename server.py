@@ -112,7 +112,7 @@ class Handler(BaseHTTPRequestHandler):
         pass  # quiet
 
 if __name__ == '__main__':
-    port = 8081
+    port = int(os.environ.get('PORT', 8081))
     print(f'BrainWreck Scoreboard running on port {port}')
     print(f'Scores stored in: {SCORES_FILE}')
     HTTPServer(('0.0.0.0', port), Handler).serve_forever()
