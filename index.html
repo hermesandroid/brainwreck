@@ -197,6 +197,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div id="phaseMemo">
 <div class="seq" id="seqD"></div>
 <button class="b c" id="memBtn" onclick="startTimer()" style="display:none;max-width:260px">I MEMORIZED IT</button>
+<button class="b s" id="chickenBtn" onclick="chickenOut()" style="display:none;margin-top:4px">nah, not ready… 🐔</button>
 <div class="info" id="memoInfo">remember it… then press the button (or SPACE)</div>
 </div>
 <div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
@@ -350,8 +351,24 @@ function gen(){
   document.getElementById('fbEl').textContent='';
   // Show button, hide timer bar
   let btn=document.getElementById('memBtn');btn.style.display='inline-block';btn.disabled=false;
+  document.getElementById('chickenBtn').style.display='inline-block';
   document.getElementById('timerBar').style.display='none';
   if(G.tid)clearInterval(G.tid);G.tid=null;
+}
+
+function chickenOut(){
+  if(G.tid)clearInterval(G.tid);G.tid=null;
+  let excuses=[
+    "brain needs stretching… 🧘","too much coffee, brb ☕","forgot how to count 🤷",
+    "the dog ate my memory 🐕","need a nap first 💤","studying the numbers… intensely 📖",
+    "rubber duck debugging my brain 🦆","neurons still booting up ⏳","contemplating life choices 🤔",
+    "need more RAM 🖥️","the voices said no 👻","blinked and lost it 😵",
+    "meditating on it 🧘‍♂️","calling my mom first 📞","the matrix is glitching 💊"
+  ];
+  let excuse=excuses[Math.floor(Math.random()*excuses.length)];
+  document.getElementById('flDetail').innerHTML=excuse;
+  ss('lvFail');
+  document.getElementById('lvFail').querySelector('.b.o').style.display='none'; // hide Retry
 }
 
 function startTimer(){
@@ -359,6 +376,7 @@ function startTimer(){
   let lv=LV[G.lv];
   let totalTime = 4 + lv.id;  // Level 1=5s, Level 9=13s (~14s)
   document.getElementById('memBtn').style.display='none';
+  document.getElementById('chickenBtn').style.display='none';
   document.getElementById('memoInfo').textContent='GO! Type it back!';
   let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
   let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
@@ -375,7 +393,8 @@ function startTimer(){
     document.getElementById('fbEl').className='fb b';
     setTimeout(()=>{
      document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level '+lv.id+' — '+lv.n;
-     ss('lvFail')
+     ss('lvFail');
+     let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
     },600);
     // Auto-transition to recall for UI consistency
     document.getElementById('phaseRecall').style.display='block';
@@ -414,7 +433,8 @@ function check(a){
     document.getElementById('fbEl').textContent='✗ WRONG!';document.getElementById('fbEl').className='fb b';
     setTimeout(()=>{
       document.getElementById('flDetail').innerHTML='Was: <b style="color:#fff">'+G.exp+'</b><br>You typed: <b style="color:#f44">'+a+'</b><br>Level '+lv.id+' — '+lv.n;
-      ss('lvFail')
+      ss('lvFail');
+      let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
     },700)
   }
 }
