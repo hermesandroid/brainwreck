@@ -70,6 +70,7 @@ class Handler(BaseHTTPRequestHandler):
         username = data.get('username', '').strip()
         score = data.get('score', 0)
         country = data.get('country', 'XX').strip().upper()
+        action = data.get('action', 'set')  # 'set' or 'delete'
 
         if not username or len(username) > 20:
             self.send_response(400)
@@ -78,8 +79,17 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(b'{"error":"invalid username"}')
             return
 
-        # Load, add/update, save
         scores = load_scores()
+
+        if action == 'delete':
+            scores = [s for s in scores if s['username'] != username]
+            save_scores(scores)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self._cors()
+            self.end_headers()
+            self.wfile.write(json.dumps({'status':'deleted'}).encode())
+            return
 
         # Update existing or add new (keep only one entry per username)
         found = False
