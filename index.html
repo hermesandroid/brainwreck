@@ -191,6 +191,9 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <!-- MENU -->
 <div id="menu" class="s">
 <div class="hud"><span class="pl" id="mPl"></span><span class="sc" id="mSc"></span></div>
+<div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0">
+  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD MODE</span></label>
+</div>
 <h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
 <div id="lvList" style="margin:10px 0"></div>
 <button class="b o" onclick="showLB('global')">🌍 Global</button>
@@ -200,10 +203,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
 <!-- GAME -->
 <div id="game" class="s">
-<div class="hud">
-  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD</span></label>
-  <span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span>
-</div>
+<div class="hud"><span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span></div>
 <div class="info" id="gStage"></div><div class="dots" id="gDots"></div>
 
 <!-- Big countdown bar — always visible, floats above keyboard -->
@@ -331,6 +331,9 @@ function showMenu(){
   document.body.className='lv0';
   ss('menu');document.getElementById('mPl').textContent=G.un;document.getElementById('mSc').textContent='★ '+G.sc;
   document.getElementById('btnCountry').textContent='🏳️ '+G.country;
+  // Sync hard mode toggle
+  document.getElementById('hardSwitch').checked=G.hard;
+  document.getElementById('hardLabel').textContent=G.hard?'⚡ HARD ON':'HARD MODE';
   let l=document.getElementById('lvList');l.innerHTML='';
   LV.forEach((v,i)=>{
     let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
