@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>BrainWreck</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;background:#060610;color:#0f0;display:flex;
+justify-content:center;align-items:center;min-height:100vh;padding:12px;
+user-select:none;-webkit-tap-highlight-color:transparent}
+.c{max-width:440px;width:100%;text-align:center}
+h1{font-size:1.4rem;letter-spacing:3px;color:#0f0;margin:4px 0}
+.sub{font-size:.7rem;color:#050;margin-bottom:8px}
+.s{display:none}.s.a{display:block}
+.b{background:#0a0a1a;color:#0f0;border:2px solid #0f0;padding:12px 24px;
+font-size:1rem;font-family:'Courier New',monospace;cursor:pointer;width:100%;
+margin:5px 0;border-radius:4px;transition:.2s}
+.b:active{background:#0f0;color:#000}
+.b.o{border-color:#f80;color:#f80}.b.o:active{background:#f80;color:#000}
+.b.c{border-color:#0ff;color:#0ff}.b.c:active{background:#0ff;color:#000}
+.b.s{padding:8px 16px;font-size:.8rem;width:auto;display:inline-block}
+.inp{background:#0a0a1a;border:2px solid #0f0;color:#fff;font-size:1.2rem;
+font-family:'Courier New',monospace;text-align:center;padding:10px;width:100%;
+border-radius:4px;letter-spacing:2px;outline:none;margin:6px 0}
+.inp:focus{border-color:#0f0;box-shadow:0 0 10px #0f04}
+.seq{font-size:2.6rem;letter-spacing:10px;margin:16px 0;min-height:50px;color:#fff;font-weight:bold}
+.timer{font-size:2.8rem;color:#f44;margin:10px 0;min-height:50px}
+.hud{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #111;margin-bottom:10px;font-size:.7rem}
+.hud .sc{color:#0ff;font-size:1rem;font-weight:bold}
+.hud .lv{color:#f80;font-weight:bold}
+.hud .pl{color:#888}
+.dots{display:flex;gap:4px;justify-content:center;margin:10px 0}
+.dots span{width:12px;height:12px;border-radius:50%;background:#111;border:1px solid #333}
+.dots .ok{background:#0f0;border-color:#0f0}
+.dots .no{background:#f44;border-color:#f44}
+.dots .now{background:#111;border-color:#ff0;box-shadow:0 0 8px #ff0}
+.lc{background:#0a0a1a;border:1px solid #1a2a1a;border-radius:8px;padding:10px;margin:5px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.lc.lk{opacity:.4;cursor:default}
+.lc .emo{font-size:1.4rem;min-width:36px}
+.lc .info{flex:1;margin-left:8px;text-align:left}
+.lc .nm{font-size:.85rem;color:#f80}
+.lc .ds{font-size:.6rem;color:#444}
+.lc .st{color:#ff0;font-size:.75rem}
+.fb{font-size:1.6rem;min-height:36px;margin:8px 0}
+.fb.g{color:#0f0}.fb.b{color:#f44}
+.fb .pts{font-size:.8rem;color:#0ff}
+.big{font-size:2.5rem;font-weight:bold}
+.gr{color:#0f0}.rd{color:#f44}.cy{color:#0ff}.or{color:#f80}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+.blk{animation:bl .6s infinite}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sl{animation:up .3s ease-out}
+
+/* ── Level Background Themes (subtle, non-distracting) ── */
+body{transition:background .8s ease, background-image .8s ease}
+body.lv0{background:#060610}  /* menu */
+body.lv1{background:radial-gradient(ellipse at 50% 30%,#1a0a2e 0%,#0a0610 60%,#060610 100%)}  /* Baby Brain: soft purple nursery */
+body.lv2{background:linear-gradient(180deg,#061a1f 0%,#0a1220 30%,#060a14 70%,#040810 100%)}  /* Goldfish: deep water */
+body.lv2::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:radial-gradient(circle at 20% 80%,#0a3a44 0%,transparent 40%),
+             radial-gradient(circle at 80% 20%,#062a34 0%,transparent 35%);
+ opacity:.4;pointer-events:none;z-index:-1}
+body.lv3{background:linear-gradient(160deg,#1a1008 0%,#140e0a 40%,#0a0806 100%)}  /* Awake: coffee warmth */
+body.lv3::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:radial-gradient(ellipse at 30% 70%,#3a2010 0%,transparent 50%),
+             radial-gradient(ellipse at 70% 20%,#2a1808 0%,transparent 40%);
+ opacity:.35;pointer-events:none;z-index:-1}
+body.lv4{background:radial-gradient(ellipse at 50% 50%,#1a0a20 0%,#0e0616 50%,#060610 100%)}  /* Braincells: neural pink */
+body.lv4::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:radial-gradient(circle at 40% 60%,#3a1040 0%,transparent 40%),
+             radial-gradient(circle at 60% 40%,#2a0a30 0%,transparent 35%);
+ opacity:.3;pointer-events:none;z-index:-1}
+body.lv5{background:radial-gradient(ellipse at 50% 0%,#1a2a10 0%,#0e1608 50%,#060a04 100%)}  /* Big Brain: expanding green glow */
+body.lv5::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:radial-gradient(circle at 50% 30%,#2a4a18 0%,transparent 50%);
+ opacity:.25;pointer-events:none;z-index:-1}
+body.lv6{background:linear-gradient(180deg,#10061a 0%,#0e0a18 40%,#080610 100%)}  /* Wizard: mystical violet */
+body.lv6::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:radial-gradient(circle at 50% 80%,#2a1040 0%,transparent 50%),
+             repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(80,20,120,.03) 40px,rgba(80,20,120,.03) 41px);
+ opacity:.4;pointer-events:none;z-index:-1}
+body.lv7{background:#080c14}  /* Rain Man: moody blue-gray */
+body.lv7::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:linear-gradient(180deg,rgba(20,30,50,.4) 0%,rgba(10,15,25,.2) 50%,rgba(5,8,15,.3) 100%);
+ opacity:.6;pointer-events:none;z-index:-1;
+ animation:rain 6s linear infinite}
+@keyframes rain{0%{opacity:.35}50%{opacity:.5}100%{opacity:.35}}
+body.lv8{background:#020a08}  /* Supercomputer: dark terminal green */
+body.lv8::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,.015) 2px,rgba(0,255,0,.015) 3px);
+ opacity:.5;pointer-events:none;z-index:-1}
+body.lv9{background:#000400}  /* Matrix: iconic code rain feel */
+body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,.04) 2px,rgba(0,255,0,.04) 3px),
+             radial-gradient(ellipse at 50% 0%,rgba(0,255,0,.06) 0%,transparent 60%);
+ opacity:.6;pointer-events:none;z-index:-1}
+.lb{font-size:.75rem;text-align:left;margin:12px 0}
+.lb .r{display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #111}
+.lb .r.me{background:#0f01}
+.lb .rk{color:#0f0;min-width:28px}
+.lb .nm{color:#ccc;flex:1}
+.lb .sc{color:#0ff;min-width:50px;text-align:right}
+.lb .co{color:#555;font-size:.65rem;margin-left:6px}
+.tabs{display:flex;gap:4px;margin-bottom:8px}
+.tab{padding:6px 14px;font-size:.7rem;cursor:pointer;border:1px solid #333;background:#0a0a1a;color:#666;border-radius:4px;font-family:'Courier New',monospace}
+.tab.on{background:#0f02;color:#0f0;border-color:#0f0}
+</style>
+</head>
+<body><div class="c">
+
+<!-- LOGIN -->
+<div id="login" class="s a">
+<h1>BRAINWRECK</h1><div class="sub">how good is your memory… really?</div>
+<div style="margin:16px 0"><input class="inp" id="userIn" placeholder="Your name" maxlength="16" autocomplete="off"></div>
+<div class="info" style="font-size:.65rem;color:#444;margin:4px 0" id="countryInfo">Detecting country...</div>
+<button class="b" onclick="doLogin()">ENTER</button>
+<div id="loginErr" style="color:#f44;font-size:.7rem;margin-top:6px"></div>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="s">
+<div class="hud"><span class="pl" id="mPl"></span><span class="sc" id="mSc"></span></div>
+<h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
+<div id="lvList" style="margin:10px 0"></div>
+<button class="b o" onclick="showLB('global')">🌍 Global</button>
+<button class="b o" id="btnCountry" onclick="showLB('country')">🏳️ Country</button>
+<button class="b s" style="margin-top:4px" onclick="logout()">Change Player</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="s">
+<div class="hud"><span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span></div>
+<div class="info" id="gStage"></div><div class="dots" id="gDots"></div>
+<div id="phaseMemo"><div class="seq" id="seqD"></div><div class="timer blk" id="timerD"></div><div class="info">remember it…</div></div>
+<div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
+<input class="inp" id="ansIn" inputmode="numeric" autocomplete="off">
+<div class="info">type and press Enter</div>
+<button class="b s" style="margin-top:10px" onclick="quitLv()">Quit</button></div>
+</div>
+
+<!-- LEVEL DONE -->
+<div id="lvDone" class="s sl">
+<div class="big gr">CLEAR!</div>
+<div class="info" id="dnName" style="font-size:1rem;color:#f80;margin:6px 0"></div>
+<div class="big cy" id="dnScore"></div><div class="info">points</div>
+<div id="dnStars" style="color:#ff0;margin:4px 0"></div>
+<div id="dnNext" style="margin-top:12px"></div>
+</div>
+
+<!-- FAIL -->
+<div id="lvFail" class="s sl">
+<div class="big rd">WIPED OUT</div>
+<div class="info" style="font-size:.85rem;color:#888;margin:6px 0" id="flDetail"></div>
+<button class="b o" onclick="retryLv()">Retry</button>
+<button class="b s" style="margin-top:6px" onclick="quitToMenu()">Menu</button>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="lbScreen" class="s">
+<h1>LEADERBOARD</h1>
+<div class="tabs">
+<span class="tab on" id="tabGlobal" onclick="showLB('global')">🌍 Global</span>
+<span class="tab" id="tabCountry" onclick="showLB('country')">🏳️ Country</span>
+</div>
+<div class="lb" id="lbList"></div>
+<button class="b s o" style="margin-top:12px" onclick="showScreen('menu')">Back</button>
+</div>
+
+</div>
+
+<script>
+// ═══ LEVELS ═══
+const LV = [
+ {id:1,n:'Baby Brain 🍼',e:'👶',d:'you got this… maybe',s:[
+  {dig:3,t:5,m:1},{dig:4,t:4,m:1},{dig:5,t:3,m:1}]},
+ {id:2,n:'Goldfish Memory 🐠',e:'🐠',d:'3-second attention span',s:[
+  {dig:4,t:4,m:1.2},{dig:5,t:3,m:1.2},{dig:6,t:3,m:1.2}]},
+ {id:3,n:'Slightly Awake ☕',e:'☕',d:'caffeine kicking in',s:[
+  {dig:5,t:3,m:1.4},{dig:6,t:3,m:1.4},{dig:7,t:2,m:1.4}]},
+ {id:4,n:'Two Braincells 🧠',e:'🧠',d:'they finally met',s:[
+  {dig:6,t:3,m:1.6},{dig:7,t:2,m:1.6},{dig:8,t:2,m:1.6}]},
+ {id:5,n:'Big Brain Time 🧠✨',e:'🧠',d:'IQ expanding rapidly',s:[
+  {dig:7,t:2,m:1.8},{dig:8,t:2,m:1.8},{dig:9,t:2,m:1.8}]},
+ {id:6,n:'Memory Wizard 🧙',e:'🧙',d:'you see numbers in your sleep',s:[
+  {dig:8,t:2,m:2},{dig:9,t:2,m:2},{dig:10,t:1,m:2}]},
+ {id:7,n:'Rain Man Mode 🌧️',e:'🌧️',d:'definitely definitely',s:[
+  {dig:9,t:2,m:2.3},{dig:10,t:1,m:2.3},{dig:11,t:1,m:2.3}]},
+ {id:8,n:'Supercomputer 🤖',e:'🤖',d:'beep boop remembering',s:[
+  {dig:10,t:1,m:2.6},{dig:11,t:1,m:2.6},{dig:12,t:1,m:2.6}]},
+ {id:9,n:'UNLOCKED: THE MATRIX 💊',e:'💊',d:'you ARE the mainframe',s:[
+  {dig:12,t:1,m:3},{dig:13,t:1,m:3},{dig:14,t:1,m:3}]}
+];
+
+// ═══ STATE ═══
+let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0};
+const SB_URL = 'http://localhost:8081';
+
+function ld(){try{let d=JSON.parse(localStorage.getItem('bw')||'{}');if(d.un)G.un=d.un;if(d.sc)G.sc=d.sc;if(d.st)G.stars=d.st;if(d.co)G.country=d.co}catch(e){}}
+function sv(){localStorage.setItem('bw',JSON.stringify({un:G.un,sc:G.sc,st:G.stars,co:G.country}))}
+
+// ═══ COUNTRY DETECTION ═══
+async function detectCountry(){
+  try{
+    let r=await fetch('https://ipapi.co/json/');
+    let d=await r.json();
+    G.country=d.country_code||'XX';
+    document.getElementById('countryInfo').textContent='📍 '+d.country_name+' ('+G.country+')';
+  }catch(e){
+    document.getElementById('countryInfo').textContent='📍 Could not detect — playing offline';
+    G.country='XX';
+  }
+}
+
+// ═══ SCOREBOARD API ═══
+async function fetchLB(country){
+  try{
+    let url=SB_URL+'?limit=20';
+    if(country&&country!=='global')url+='&country='+country;
+    let r=await fetch(url);
+    return await r.json();
+  }catch(e){return[]}
+}
+async function postScore(){
+  try{
+    await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({username:G.un,score:G.sc,country:G.country})});
+  }catch(e){}
+}
+
+// ═══ SCREENS ═══
+function ss(id){document.querySelectorAll('.s').forEach(e=>e.classList.remove('a'));document.getElementById(id).classList.add('a')}
+
+// ═══ LOGIN ═══
+async function doLogin(){
+  let n=document.getElementById('userIn').value.trim();
+  if(n.length<2){document.getElementById('loginErr').textContent='At least 2 characters!';return}
+  G.un=n;ld();if(!G.sc)G.sc=0;sv();document.getElementById('loginErr').textContent='';showMenu()
+}
+function logout(){G.un='';G.sc=0;G.stars={};sv();document.body.className='';ss('login')}
+
+// ═══ MENU ═══
+function showMenu(){
+  document.body.className='lv0';
+  ss('menu');document.getElementById('mPl').textContent=G.un;document.getElementById('mSc').textContent='★ '+G.sc;
+  document.getElementById('btnCountry').textContent='🏳️ '+G.country;
+  let l=document.getElementById('lvList');l.innerHTML='';
+  LV.forEach((v,i)=>{
+    let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
+    let d=document.createElement('div');d.className='lc'+(lk?' lk':'');
+    d.innerHTML=`<div class="emo">${v.e}</div><div class="info"><div class="nm">${v.n}</div><div class="ds">${v.d}</div></div><div class="st">${lk?'🔒':'★'.repeat(s)+'☆'.repeat(3-s)}</div>`;
+    if(!lk)d.onclick=()=>startLv(i);l.appendChild(d)
+  })
+}
+
+// ═══ LEVEL ═══
+function startLv(idx){G.lv=idx;G.stage=0;G.results=[];document.body.className='lv'+LV[idx].id;ss('game');upHUD();gen()}
+function retryLv(){G.stage=0;G.results=[];document.body.className='lv'+LV[G.lv].id;ss('game');upHUD();gen()}
+function quitLv(){if(G.tid)clearInterval(G.tid);G.lv=null;document.body.className='lv0';postScore();showMenu()}
+function quitToMenu(){quitLv()}
+
+function upHUD(){
+  let lv=LV[G.lv];document.getElementById('gPl').textContent=G.un;
+  document.getElementById('gLv').textContent='Lv.'+lv.id+' '+lv.n;
+  document.getElementById('gSc').textContent='★ '+G.sc;
+  let d=document.getElementById('gDots');d.innerHTML='';
+  for(let i=0;i<3;i++){let s=document.createElement('span');
+   if(G.results[i]===true)s.className='ok';else if(G.results[i]===false)s.className='no';
+   else if(i===G.stage)s.className='now';d.appendChild(s)}
+  document.getElementById('gStage').textContent='Stage '+(G.stage+1)+' of 3'
+}
+
+function gen(){
+  let lv=LV[G.lv],st=lv.s[G.stage];upHUD();
+  let d=[];for(let i=0;i<st.dig;i++)d.push(Math.floor(Math.random()*10));
+  G.seq=d.join('');G.exp=G.seq;
+  document.getElementById('phaseMemo').style.display='block';
+  document.getElementById('phaseRecall').style.display='none';
+  document.getElementById('seqD').textContent=G.seq;
+  document.getElementById('fbEl').textContent='';
+  let r=st.t,el=document.getElementById('timerD');el.textContent=r;el.classList.add('blk');
+  G.ts=Date.now();if(G.tid)clearInterval(G.tid);
+  G.tid=setInterval(()=>{r--;el.textContent=r;if(r<=0){clearInterval(G.tid);G.tid=null;
+   el.classList.remove('blk');el.textContent='';
+   document.getElementById('phaseMemo').style.display='none';recall()}},1000)
+}
+
+function recall(){
+  document.getElementById('phaseRecall').style.display='block';
+  let inp=document.getElementById('ansIn');inp.value='';inp.focus()
+}
+
+function check(a){
+  a=a.trim();if(!a)return;
+  let lv=LV[G.lv],st=lv.s[G.stage],ok=a===G.exp;
+  if(ok){
+    let el=(Date.now()-G.ts)/1000,bonus=Math.max(0,Math.floor((st.t-el)*50));
+    let pts=Math.floor(100*lv.id*st.m+bonus);G.sc+=pts;G.results[G.stage]=true;sv();
+    let fb=document.getElementById('fbEl');fb.innerHTML='✓ CORRECT!<br><span class="pts">+'+pts+' pts</span>';fb.className='fb g';
+    G.stage++;
+    if(G.stage>=3){
+      let stars=G.results.filter(r=>r===true).length;G.stars[lv.id]=Math.max(G.stars[lv.id]||0,stars);
+      sv();postScore();setTimeout(()=>lvlDone(pts,stars),700)
+    }else setTimeout(()=>gen(),700)
+  }else{
+    G.results[G.stage]=false;
+    document.getElementById('fbEl').textContent='✗ WRONG!';document.getElementById('fbEl').className='fb b';
+    setTimeout(()=>{
+      document.getElementById('flDetail').innerHTML='Was: <b style="color:#fff">'+G.exp+'</b><br>You typed: <b style="color:#f44">'+a+'</b><br>Level '+lv.id+' — '+lv.n;
+      ss('lvFail')
+    },700)
+  }
+}
+
+function lvlDone(pts,stars){
+  let lv=LV[G.lv];ss('lvDone');
+  document.getElementById('dnName').textContent=lv.e+' '+lv.n;
+  document.getElementById('dnScore').textContent='+'+G.sc;
+  document.getElementById('dnStars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars);
+  let nx=document.getElementById('dnNext');nx.innerHTML='';
+  if(G.lv<LV.length-1){
+   let b=document.createElement('button');b.className='b c';b.textContent='Next: '+LV[G.lv+1].n;b.onclick=()=>startLv(G.lv+1);nx.appendChild(b)
+  }else{nx.innerHTML='<div class="big or" style="font-size:1.1rem">🏆 YOU BEAT IT 🏆</div>'}
+  let mb=document.createElement('button');mb.className='b s';mb.style.marginTop='8px';
+  mb.textContent='Menu';mb.onclick=()=>{G.lv=null;showMenu()};nx.appendChild(mb)
+}
+
+// ═══ LEADERBOARD ═══
+async function showLB(mode){
+  ss('lbScreen');
+  document.getElementById('tabGlobal').className='tab'+(mode==='global'?' on':'');
+  document.getElementById('tabCountry').className='tab'+(mode==='country'?' on':'');
+  let lb=document.getElementById('lbList');lb.innerHTML='<div class="r"><span>Loading...</span></div>';
+  let country=mode==='country'?G.country:null;
+  let data=await fetchLB(country);
+  if(!data.length){lb.innerHTML='<div class="r"><span>No scores yet — go play!</span></div>';return}
+  lb.innerHTML=data.map((e,i)=>{
+    let me=e.username===G.un;
+    return `<div class="r${me?' me':''}"><span class="rk">#${i+1}</span>
+    <span class="nm">${e.username}<span class="co">${e.country||''}</span></span>
+    <span class="sc">${e.score}</span></div>`
+  }).join('')
+}
+
+// ═══ EVENTS ═══
+document.getElementById('ansIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();check(e.target.value)}});
+document.getElementById('userIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doLogin()}});
+
+// ═══ INIT ═══
+ld();detectCountry();
+if(G.un){document.getElementById('userIn').value=G.un;showMenu()}else ss('login');
+</script>
+</body>
+</html>
