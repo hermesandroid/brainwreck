@@ -1,25 +1,86 @@
 #!/usr/bin/env python3
 """
-BrainWreck Scoreboard Server
-Stores scores globally, returns leaderboards filtered by country or worldwide.
+BrainWreck Scoreboard Server — GitHub-backed persistent storage.
+Scores survive Render restarts via GitHub repo.
 """
 import json
 import os
 import time
+import urllib.request
+import urllib.error
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
-SCORES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scores.json')
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+REPO_API = 'https://api.github.com/repos/hermesandroid/brainwreck/contents/scores.json'
+REPO_RAW = 'https://raw.githubusercontent.com/hermesandroid/brainwreck/main/scores.json'
+
+# In-memory cache (avoids hitting GitHub on every GET)
+_cache = None
+_cache_time = 0
+CACHE_TTL = 5  # seconds
+
+def _github_request(url, method='GET', data=None):
+    """Make an authenticated GitHub API request."""
+    headers = {
+        'Authorization': f'Bearer {GITHUB_TOKEN}',
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+    }
+    if data:
+        headers['Content-Type'] = 'application/json'
+        body = json.dumps(data).encode()
+    else:
+        body = None
+
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    try:
+        resp = urllib.request.urlopen(req, timeout=10)
+        return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        return None
+    except Exception:
+        return None
 
 def load_scores():
-    if os.path.exists(SCORES_FILE):
-        with open(SCORES_FILE) as f:
-            return json.load(f)
-    return []
+    """Load scores from GitHub (cached in memory)."""
+    global _cache, _cache_time
+    now = time.time()
+
+    if _cache is not None and (now - _cache_time) < CACHE_TTL:
+        return _cache
+
+    try:
+        req = urllib.request.Request(REPO_RAW)
+        resp = urllib.request.urlopen(req, timeout=10)
+        data = json.loads(resp.read())
+        _cache = data if isinstance(data, list) else []
+        _cache_time = now
+        return _cache
+    except Exception:
+        return _cache if _cache is not None else []
 
 def save_scores(scores):
-    with open(SCORES_FILE, 'w') as f:
-        json.dump(scores, f)
+    """Save scores to GitHub. Updates cache."""
+    global _cache, _cache_time
+
+    # Get current file SHA (needed for GitHub update)
+    current = _github_request(REPO_API)
+    sha = current.get('sha', '') if current else ''
+
+    data = {
+        'message': 'Update scores',
+        'content': json.dumps(scores, ensure_ascii=False),
+        'sha': sha,
+    }
+
+    result = _github_request(REPO_API, method='PUT', data=data)
+    if result:
+        _cache = scores
+        _cache_time = time.time()
+        return True
+    return False
+
 
 class Handler(BaseHTTPRequestHandler):
     def _cors(self):
@@ -43,7 +104,6 @@ class Handler(BaseHTTPRequestHandler):
         if country:
             scores = [s for s in scores if s.get('country', '').upper() == country.upper()]
 
-        # Sort by score descending
         scores.sort(key=lambda x: x['score'], reverse=True)
         scores = scores[:limit]
 
@@ -54,92 +114,59 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(scores).encode())
 
     def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length)
+        cl = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(cl)
 
         try:
             data = json.loads(body)
         except json.JSONDecodeError:
-            self.send_response(400)
-            self._cors()
-            self.end_headers()
-            self.wfile.write(b'{"error":"invalid json"}')
-            return
+            self.send_response(400); self._cors(); self.end_headers()
+            self.wfile.write(b'{"error":"invalid json"}'); return
 
-        # Required fields
         username = data.get('username', '').strip()
         score = data.get('score', 0)
         country = data.get('country', 'XX').strip().upper()
-        action = data.get('action', 'set')  # 'set' or 'delete'
+        action = data.get('action', 'set')
 
         if not username or len(username) > 20:
-            self.send_response(400)
-            self._cors()
-            self.end_headers()
-            self.wfile.write(b'{"error":"invalid username"}')
-            return
+            self.send_response(400); self._cors(); self.end_headers()
+            self.wfile.write(b'{"error":"invalid username"}'); return
 
         scores = load_scores()
 
         if action == 'delete':
             scores = [s for s in scores if s['username'] != username]
-            save_scores(scores)
-            self.send_response(200)
+            ok = save_scores(scores)
+            self.send_response(200 if ok else 500)
             self.send_header('Content-Type', 'application/json')
-            self._cors()
-            self.end_headers()
-            self.wfile.write(json.dumps({'status':'deleted'}).encode())
+            self._cors(); self.end_headers()
+            self.wfile.write(json.dumps({'status':'deleted' if ok else 'error'}).encode())
             return
 
-        # Update existing or add new (keep only one entry per username)
+        # Update or add
         found = False
         for s in scores:
             if s['username'] == username:
                 if score > s['score']:
-                    s['score'] = score
-                    s['country'] = country
+                    s['score'] = score; s['country'] = country
                     s['time'] = int(time.time())
-                found = True
-                break
+                found = True; break
 
         if not found:
-            scores.append({
-                'username': username,
-                'score': score,
-                'country': country,
-                'time': int(time.time())
-            })
+            scores.append({'username':username,'score':score,'country':country,'time':int(time.time())})
 
-        save_scores(scores)
-
-        self.send_response(200)
+        ok = save_scores(scores)
+        self.send_response(200 if ok else 500)
         self.send_header('Content-Type', 'application/json')
-        self._cors()
-        self.end_headers()
-        self.wfile.write(json.dumps({'status': 'ok'}).encode())
-
-    def do_DELETE(self):
-        """Remove a player's score — for admin cleanup."""
-        parsed = urlparse(self.path)
-        params = parse_qs(parsed.query)
-        username = params.get('username', [None])[0]
-        if not username:
-            self.send_response(400); self._cors(); self.end_headers()
-            self.wfile.write(b'{"error":"need username"}'); return
-        scores = load_scores()
-        scores = [s for s in scores if s['username'] != username]
-        save_scores(scores)
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self._cors()
-        self.end_headers()
-        self.wfile.write(json.dumps({'status':'deleted','username':username}).encode())
+        self._cors(); self.end_headers()
+        self.wfile.write(json.dumps({'status':'ok' if ok else 'error'}).encode())
 
     def log_message(self, format, *args):
-        pass  # quiet
+        pass
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8081))
-    print(f'BrainWreck Scoreboard running on port {port}')
-    print(f'Scores stored in: {SCORES_FILE}')
+    print(f'BrainWreck Scoreboard on port {port}')
+    print('Storage: GitHub (persistent)')
     HTTPServer(('0.0.0.0', port), Handler).serve_forever()
