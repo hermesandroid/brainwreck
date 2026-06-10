@@ -1,0 +1,2 @@
+# BrainWreck scoreboard server — no external dependencies needed
+# Uses only Python standard library (http.server, json, os, time)
