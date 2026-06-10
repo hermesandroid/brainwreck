@@ -106,6 +106,15 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .tab{padding:6px 14px;font-size:.7rem;cursor:pointer;border:1px solid #333;background:#0a0a1a;color:#666;border-radius:4px;font-family:'Courier New',monospace}
 .tab.on{background:#0f02;color:#0f0;border-color:#0f0}
 
+/* ── Big Timer Bar (floats above keyboard on phone) ── */
+#timerBar{
+  position:sticky;top:0;z-index:100;
+  background:#0a0a1a;border-bottom:2px solid #f44;
+  padding:8px 0;margin:-8px -8px 12px -8px;
+}
+#timerBar .timer.big{font-size:3.5rem;margin:0;min-height:auto}
+#timerBar .info{margin:0;font-size:.7rem}
+
 /* ── DESKTOP / WIDE SCREEN (auto-detected) ── */
 @media(min-width:768px){
   .c{max-width:900px}
@@ -146,6 +155,10 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
   /* Wider buttons in level select */
   #lvList{max-width:600px;margin:10px auto}
+
+  /* Bigger timer bar on desktop */
+  #timerBar .timer.big{font-size:5rem}
+  #timerBar .info{font-size:.85rem}
 }
 </style>
 </head>
@@ -174,11 +187,17 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div id="game" class="s">
 <div class="hud"><span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span></div>
 <div class="info" id="gStage"></div><div class="dots" id="gDots"></div>
+
+<!-- Big countdown bar — always visible, floats above keyboard -->
+<div id="timerBar" style="display:none">
+  <div class="timer big cy" id="timerD">5</div>
+  <div class="info" style="color:#f44">seconds remaining</div>
+</div>
+
 <div id="phaseMemo">
 <div class="seq" id="seqD"></div>
 <button class="b c" id="memBtn" onclick="startTimer()" style="display:none;max-width:260px">I MEMORIZED IT</button>
-<div class="timer blk" id="timerD" style="display:none"></div>
-<div class="info" id="memoInfo">remember it… then press the button</div>
+<div class="info" id="memoInfo">remember it… then press the button (or SPACE)</div>
 </div>
 <div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
 <input class="inp" id="ansIn" inputmode="numeric" autocomplete="off">
@@ -329,9 +348,9 @@ function gen(){
   document.getElementById('seqD').textContent=G.seq;
   document.getElementById('memoInfo').textContent='remember it… then press the button (or SPACE)';
   document.getElementById('fbEl').textContent='';
-  // Show button, hide timer
+  // Show button, hide timer bar
   let btn=document.getElementById('memBtn');btn.style.display='inline-block';btn.disabled=false;
-  document.getElementById('timerD').style.display='none';
+  document.getElementById('timerBar').style.display='none';
   if(G.tid)clearInterval(G.tid);G.tid=null;
 }
 
@@ -341,13 +360,14 @@ function startTimer(){
   let totalTime = 4 + lv.id;  // Level 1=5s, Level 9=13s (~14s)
   document.getElementById('memBtn').style.display='none';
   document.getElementById('memoInfo').textContent='GO! Type it back!';
-  let timerEl=document.getElementById('timerD');timerEl.style.display='block';
-  timerEl.textContent=totalTime;timerEl.classList.add('blk');
+  let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
+  let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
   G.ts=Date.now();let r=totalTime;
   if(G.tid)clearInterval(G.tid);
   G.tid=setInterval(()=>{r--;timerEl.textContent=r;
    if(r<=0){clearInterval(G.tid);G.tid=null;
-    timerEl.classList.remove('blk');timerEl.style.display='none';
+    document.getElementById('timerBar').style.display='none';
+    timerEl.classList.remove('blk');
     document.getElementById('phaseMemo').style.display='none';
     // Time's up = wrong
     G.results[G.stage]=false;
@@ -381,7 +401,8 @@ function check(a){
     let totalTime=4+lv.id;
     let timeBonus=Math.max(0,Math.floor((totalTime-elapsed)*30));
     let pts=Math.floor(100*lv.id*st.m+timeBonus);G.sc+=pts;G.results[G.stage]=true;sv();
-    document.getElementById('timerD').style.display='none';document.getElementById('timerD').classList.remove('blk');
+    document.getElementById('timerBar').style.display='none';
+    document.getElementById('timerD').classList.remove('blk');
     let fb=document.getElementById('fbEl');fb.innerHTML='✓ CORRECT!<br><span class="pts">+'+pts+' pts</span>';fb.className='fb g';
     G.stage++;
     if(G.stage>=3){
