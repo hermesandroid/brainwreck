@@ -105,6 +105,48 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .tabs{display:flex;gap:4px;margin-bottom:8px}
 .tab{padding:6px 14px;font-size:.7rem;cursor:pointer;border:1px solid #333;background:#0a0a1a;color:#666;border-radius:4px;font-family:'Courier New',monospace}
 .tab.on{background:#0f02;color:#0f0;border-color:#0f0}
+
+/* ── DESKTOP / WIDE SCREEN (auto-detected) ── */
+@media(min-width:768px){
+  .c{max-width:900px}
+  h1{font-size:2rem;letter-spacing:6px}
+  .sub{font-size:.9rem}
+  .seq{font-size:4.5rem;letter-spacing:20px;margin:24px 0}
+  .timer{font-size:4rem}
+  .inp{font-size:2rem;padding:16px;letter-spacing:8px;max-width:500px;margin:0 auto}
+  .b{padding:16px 32px;font-size:1.2rem;max-width:400px;margin:8px auto}
+  .b.s{padding:10px 20px;font-size:.9rem;max-width:200px}
+  .hud{font-size:.85rem;padding:10px 0}
+  .hud .sc{font-size:1.2rem}
+  .fb{font-size:2.2rem}
+  .fb .pts{font-size:1rem}
+  .big{font-size:3.5rem}
+  .info{font-size:.95rem}
+  .lb{font-size:.85rem;max-width:600px;margin:12px auto}
+  .lb .r{padding:6px 12px}
+  .tabs{justify-content:center}
+  .tab{font-size:.8rem;padding:8px 20px}
+
+  /* Wider level cards */
+  .lc{max-width:550px;margin:6px auto;padding:14px}
+  .lc .emo{font-size:1.8rem;min-width:44px}
+  .lc .nm{font-size:1rem}
+  .lc .ds{font-size:.7rem}
+
+  /* Desktop dual-pane: game area + sidebar */
+  .desk-layout{display:flex;gap:20px;align-items:flex-start;justify-content:center}
+  .desk-main{flex:1;max-width:550px}
+  .desk-side{width:280px;display:none}
+  .desk-side.show{display:block}
+  .desk-side .lb{font-size:.7rem;max-width:none;max-height:60vh;overflow-y:auto}
+
+  /* Bigger dots */
+  .dots span{width:16px;height:16px}
+  .dots{gap:6px;margin:14px 0}
+
+  /* Wider buttons in level select */
+  #lvList{max-width:600px;margin:10px auto}
+}
 </style>
 </head>
 <body><div class="c">
