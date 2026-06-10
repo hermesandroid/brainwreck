@@ -316,7 +316,10 @@ async function fetchLB(country){
   try{
     let url=SB_URL+'?limit=20';
     if(country&&country!=='global')url+='&country='+country;
-    let r=await fetch(url);
+    let controller=new AbortController();
+    let timer=setTimeout(()=>controller.abort(),5000);
+    let r=await fetch(url,{signal:controller.signal});
+    clearTimeout(timer);
     return await r.json();
   }catch(e){return[]}
 }
@@ -358,17 +361,21 @@ function showMenu(){
 }
 
 async function loadSidebarLB(){
-  let data=await fetchLB(null);
-  let lb=document.getElementById('deskLB');
-  if(!data.length){lb.innerHTML='<div class="r"><span>No scores yet</span></div>'}
-  else{lb.innerHTML=data.slice(0,10).map((e,i)=>{
-    let me=e.username===G.un;
-    return `<div class="r${me?' me':''}"><span class="rk">#${i+1}</span>
-    <span class="nm">${e.username}<span class="co">${e.country||''}</span></span>
-    <span class="sc">${e.score}</span></div>`
-  }).join('')}
-  // Show sidebar on desktop
-  document.getElementById('deskSidebar').classList.add('show');
+  try{
+    let data=await fetchLB(null);
+    let lb=document.getElementById('deskLB');
+    if(!data.length){lb.innerHTML='<div class="r"><span>No scores yet</span></div>'}
+    else{lb.innerHTML=data.slice(0,10).map((e,i)=>{
+      let me=e.username===G.un;
+      return `<div class="r${me?' me':''}"><span class="rk">#${i+1}</span>
+      <span class="nm">${e.username}<span class="co">${e.country||''}</span></span>
+      <span class="sc">${e.score}</span></div>`
+    }).join('')}
+    document.getElementById('deskSidebar').classList.add('show');
+  }catch(e){
+    document.getElementById('deskLB').innerHTML='<div class="r"><span>Scoreboard offline</span></div>';
+    document.getElementById('deskSidebar').classList.add('show');
+  }
 }
 }
 
