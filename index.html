@@ -180,6 +180,8 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 </style>
 </head>
 <body><div class="c">
+<canvas id="matrixRain" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;opacity:0;transition:opacity .8s"></canvas>
+
 
 <!-- LOGIN -->
 <div id="login" class="s a">
@@ -364,7 +366,8 @@ function upHUD(){
 
 function toggleHard(){
   G.hard=document.getElementById('hardSwitch').checked;
-  document.getElementById('hardLabel').textContent=G.hard?'HARD ON':'HARD';
+  document.getElementById('hardLabel').textContent=G.hard?'⚡ HARD ON':'HARD MODE';
+  if(G.hard){startMatrix()}else{stopMatrix()}
 }
 
 function gen(){
@@ -546,6 +549,33 @@ async function showLB(mode){
     <span class="nm">${e.username}<span class="co">${e.country||''}</span></span>
     <span class="sc">${e.score}</span></div>`
   }).join('')
+}
+
+// ═══ MATRIX RAIN (hard mode) ═══
+let matrixAnim=null;
+function startMatrix(){
+  let c=document.getElementById('matrixRain'),ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  c.style.opacity='0.12';
+  let cols=Math.floor(c.width/14),drops=[];
+  for(let i=0;i<cols;i++)drops[i]=Math.random()*-100;
+  let chars='01'; // only 0s and 1s
+  function draw(){
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#0f0';ctx.font='13px monospace';
+    for(let i=0;i<drops.length;i++){
+      let ch=chars[Math.floor(Math.random()*2)];
+      ctx.fillText(ch,i*14,drops[i]*14);
+      if(drops[i]*14>c.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    }
+  }
+  matrixAnim=setInterval(draw,50);
+  window.addEventListener('resize',()=>{c.width=window.innerWidth;c.height=window.innerHeight});
+}
+function stopMatrix(){
+  let c=document.getElementById('matrixRain');c.style.opacity='0';
+  if(matrixAnim){clearInterval(matrixAnim);matrixAnim=null}
 }
 
 // ═══ EVENTS ═══
