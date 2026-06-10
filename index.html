@@ -121,14 +121,30 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .hard-indicator{display:none;color:#f44;font-size:.65rem;letter-spacing:2px}
 .hard-indicator.on{display:inline}
 
+/* ── Custom Number Pad ── */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:280px;margin:8px auto}
+.nk{background:#0a0a1a;color:#0f0;border:2px solid #1a2a1a;font-size:1.4rem;
+  font-family:'Courier New',monospace;padding:12px;cursor:pointer;border-radius:6px;
+  transition:.15s;-webkit-tap-highlight-color:transparent}
+.nk:active{background:#0f0;color:#000;border-color:#0f0;transform:scale(.95)}
+.nk.del{color:#f80;border-color:#2a1a0a;font-size:1.1rem}
+.nk.del:active{background:#f80;color:#000}
+.nk.go{color:#0ff;border-color:#0a2a2a;font-size:1.1rem}
+.nk.go:active{background:#0ff;color:#000}
+
+/* Compact recall for numpad */
+#phaseRecall .fb{min-height:24px;font-size:1.3rem;margin:4px 0}
+#phaseRecall .inp{font-size:1.5rem;padding:8px;margin:2px 0}
+#phaseRecall .info{margin:2px 0}
+
 /* ── Big Timer Bar (floats above keyboard on phone) ── */
 #timerBar{
   position:sticky;top:0;z-index:100;
   background:#0a0a1a;border-bottom:2px solid #f44;
-  padding:8px 0;margin:-8px -8px 12px -8px;
+  padding:4px 0;margin:-8px -8px 8px -8px;
 }
-#timerBar .timer.big{font-size:3.5rem;margin:0;min-height:auto}
-#timerBar .info{margin:0;font-size:.7rem}
+#timerBar .timer.big{font-size:2.8rem;margin:0;min-height:auto}
+#timerBar .info{margin:0;font-size:.65rem}
 
 /* ── DESKTOP / WIDE SCREEN (auto-detected) ── */
 @media(min-width:768px){
@@ -176,6 +192,9 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   #lvList{max-width:550px;margin:10px auto}
   #menu .hud{max-width:550px;margin-left:auto;margin-right:auto}
   .hard-toggle .label{font-size:.7rem}
+
+  /* Hide numpad on PC — they have keyboards */
+  .numpad{display:none}
 }
 </style>
 </head>
@@ -231,8 +250,22 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div class="info" id="memoInfo">remember it… then press the button (or SPACE)</div>
 </div>
 <div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
-<input class="inp" id="ansIn" inputmode="numeric" autocomplete="off">
-<div class="info">type and press Enter</div>
+<input class="inp" id="ansIn" inputmode="none" autocomplete="off" readonly onclick="this.blur()">
+<div class="info">tap the numbers below</div>
+<div class="numpad" id="numpad">
+  <button class="nk" onclick="padPress('1')">1</button>
+  <button class="nk" onclick="padPress('2')">2</button>
+  <button class="nk" onclick="padPress('3')">3</button>
+  <button class="nk" onclick="padPress('4')">4</button>
+  <button class="nk" onclick="padPress('5')">5</button>
+  <button class="nk" onclick="padPress('6')">6</button>
+  <button class="nk" onclick="padPress('7')">7</button>
+  <button class="nk" onclick="padPress('8')">8</button>
+  <button class="nk" onclick="padPress('9')">9</button>
+  <button class="nk del" onclick="padBack()">⌫</button>
+  <button class="nk" onclick="padPress('0')">0</button>
+  <button class="nk go" onclick="padSubmit()">✓</button>
+</div>
 <button class="b s" style="margin-top:10px" onclick="quitLv()">Quit</button></div>
 </div>
 
@@ -607,6 +640,17 @@ function startMatrix(){
 function stopMatrix(){
   let c=document.getElementById('matrixRain');c.style.opacity='0';
   if(matrixAnim){clearInterval(matrixAnim);matrixAnim=null}
+}
+
+// ═══ NUMPAD (custom number pad) ═══
+function padPress(d){
+  let inp=document.getElementById('ansIn');inp.value+=d;inp.focus()
+}
+function padBack(){
+  let inp=document.getElementById('ansIn');inp.value=inp.value.slice(0,-1);inp.focus()
+}
+function padSubmit(){
+  check(document.getElementById('ansIn').value)
 }
 
 // ═══ EVENTS ═══

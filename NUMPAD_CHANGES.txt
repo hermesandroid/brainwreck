@@ -1,0 +1,17 @@
+# Numpad changes — remove these to revert:
+#
+# HTML (in phaseRecall):
+#   - Replaced <input> with readonly, inputmode="none", onclick blur
+#   - Replaced "type and press Enter" with "tap the numbers below"
+#   - Added <div class="numpad"> with 12 buttons
+#
+# CSS:
+#   - Added .numpad grid styles
+#   - Added .nk button styles (default, .del, .go, :active)
+#   - Desktop: .numpad{display:none}
+#
+# JS:
+#   - Added padPress(d), padBack(), padSubmit() functions
+#
+# To revert: remove the numpad div, restore original input line,
+# restore "type and press Enter", remove CSS+JS additions
