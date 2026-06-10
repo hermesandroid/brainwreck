@@ -327,7 +327,7 @@ function gen(){
   document.getElementById('phaseMemo').style.display='block';
   document.getElementById('phaseRecall').style.display='none';
   document.getElementById('seqD').textContent=G.seq;
-  document.getElementById('memoInfo').textContent='remember it… then press the button';
+  document.getElementById('memoInfo').textContent='remember it… then press the button (or SPACE)';
   document.getElementById('fbEl').textContent='';
   // Show button, hide timer
   let btn=document.getElementById('memBtn');btn.style.display='inline-block';btn.disabled=false;
@@ -431,6 +431,13 @@ async function showLB(mode){
 // ═══ EVENTS ═══
 document.getElementById('ansIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();check(e.target.value)}});
 document.getElementById('userIn').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doLogin()}});
+// Space bar = "I MEMORIZED IT" (PC shortcut)
+document.addEventListener('keydown',function(e){
+  if(e.key===' '||e.code==='Space'){
+    let btn=document.getElementById('memBtn');
+    if(btn.style.display!=='none'&&!btn.disabled){e.preventDefault();startTimer();}
+  }
+});
 
 // ═══ INIT ═══
 ld();detectCountry();
