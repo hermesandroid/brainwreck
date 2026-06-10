@@ -108,6 +108,23 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({'status': 'ok'}).encode())
 
+    def do_DELETE(self):
+        """Remove a player's score — for admin cleanup."""
+        parsed = urlparse(self.path)
+        params = parse_qs(parsed.query)
+        username = params.get('username', [None])[0]
+        if not username:
+            self.send_response(400); self._cors(); self.end_headers()
+            self.wfile.write(b'{"error":"need username"}'); return
+        scores = load_scores()
+        scores = [s for s in scores if s['username'] != username]
+        save_scores(scores)
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self._cors()
+        self.end_headers()
+        self.wfile.write(json.dumps({'status':'deleted','username':username}).encode())
+
     def log_message(self, format, *args):
         pass  # quiet
 
