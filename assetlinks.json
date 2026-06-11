@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.hermesandroid.twa",
+        "sha256_cert_fingerprints": ["12:0C:4F:89:2C:39:BE:90:E8:80:07:FF:6D:16:99:1B:F1:0A:77:FB:4D:A3:17:FF:3C:D6:66:3D:1C:A5:7B:48"]
+      }
+    }]
