@@ -524,27 +524,27 @@ function toggleColor(){
 }
 
 // ═══ 3D Rubik's cube spinner ═══
-let cubeAnim=null,cubeRX=0,cubeRY=0,cubeVX=0,cubeVY=0,cubeDragging=false,cubeLX=0,cubeLY=0;
+let cubeAnim=null,cubeRX=0,cubeRY=0,cubeRZ=0,cubeVX=0,cubeVY=0,cubeVZ=0,cubeDragging=false,cubeLX=0,cubeLY=0;
 function spinCube(){
   let c=document.getElementById('rubikCube');c.style.display='block';
   c.style.cursor='grab';
-  cubeRX=0;cubeRY=0;cubeVX=0;cubeVY=0;
+  cubeRX=0;cubeRY=0;cubeRZ=0;cubeVX=0;cubeVY=0;cubeVZ=0;
   // Touch/drag events
   c.onpointerdown=e=>{cubeDragging=true;cubeLX=e.clientX;cubeLY=e.clientY;c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';};
   c.onpointermove=e=>{if(!cubeDragging)return;
     let dx=e.clientX-cubeLX,dy=e.clientY-cubeLY;
-    cubeVY=dx*3;cubeVX=-dy*3;
-    cubeRY+=dx*3;cubeRX-=dy*3;
+    cubeVY=dx*10;cubeVX=-dy*10;cubeVZ=(dx-dy)*5;
+    cubeRY+=dx*10;cubeRX-=dy*10;cubeRZ+=(dx-dy)*5;
     cubeLX=e.clientX;cubeLY=e.clientY;
   };
   c.onpointerup=()=>{cubeDragging=false;c.style.cursor='grab';};
   // Physics loop
   function physics(){
     if(!cubeDragging){
-      cubeRX+=cubeVX;cubeRY+=cubeVY;
-      cubeVX*=0.98;cubeVY*=0.98;
+      cubeRX+=cubeVX;cubeRY+=cubeVY;cubeRZ+=cubeVZ;
+      cubeVX*=0.985;cubeVY*=0.985;cubeVZ*=0.985;
     }
-    c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg)`;
+    c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg) rotateZ(${cubeRZ}deg)`;
     cubeAnim=requestAnimationFrame(physics);
   }
   physics();
