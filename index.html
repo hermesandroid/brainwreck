@@ -566,7 +566,7 @@ function spinCube(){
   function physics(){
     if(!cubeDragging){
       // Gravity
-      cubeVelY+=0.4;
+      cubeVelY+=0.5;
       cubeRX+=cubeVX;cubeRY+=cubeVY;cubeRZ+=cubeVZ;
       cubeVX*=0.985;cubeVY*=0.985;cubeVZ*=0.985;
       // Position movement with bounce
@@ -577,6 +577,10 @@ function spinCube(){
       if(cubePY<0){cubePY=0;cubeVelY*=-0.65;cubeVX*=-0.4}
       if(cubePY>H){cubePY=H;cubeVelY*=-0.65;cubeVX*=-0.4;cubeRY+=cubeVelX*2}
       cubeVelX*=0.998;cubeVelY*=0.998;
+      // Unstuck: if nearly stopped, give a tiny random nudge
+      if(Math.abs(cubeVelX)<0.1&&Math.abs(cubeVelY)<0.1){
+        cubeVelX=(Math.random()-.5)*2;cubeVelY=(Math.random()-.5)*2-0.5;
+      }
     }
     c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg) rotateZ(${cubeRZ}deg)`;
     c.style.right='auto';c.style.bottom='auto';
