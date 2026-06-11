@@ -545,12 +545,12 @@ function spinCube(){
   };
   c.onpointermove=e=>{if(!cubeDragging)return;
     let dx=e.clientX-cubeLX,dy=e.clientY-cubeLY;
-    cubeVY=dx*8;cubeVX=-dy*8;
-    cubeRY+=dx*8;cubeRX-=dy*8;
-    cubePX=e.clientX-CUBE_SIZE/2;cubePY=e.clientY-CUBE_SIZE/2;
-    c.style.left=cubePX+'px';c.style.top=cubePY+'px';c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg)`;
-    cubeLX=e.clientX;cubeLY=e.clientY;
+    // Track speed for throw
     lastDX=dx;lastDY=dy;
+    // Follow finger exactly — no rotation during drag
+    cubePX=e.clientX-CUBE_SIZE/2;cubePY=e.clientY-CUBE_SIZE/2;
+    c.style.left=cubePX+'px';c.style.top=cubePY+'px';
+    cubeLX=e.clientX;cubeLY=e.clientY;
   };
   c.onpointerup=e=>{
     let held=Date.now()-tapTime;
@@ -594,9 +594,13 @@ function spinCube(){
       cubeVX*=0.99;cubeVY*=0.99;cubeVZ*=0.99;
       cubeVX+=cubeVelX*0.3;cubeVY+=cubeVelY*0.3;
       
-      // Never fully stop — minimum movement
-      if(Math.abs(cubeVelX)<0.15&&Math.abs(cubeVelY)<0.15&&cubePY>H-5){
-        cubeVelX=(Math.random()-.5)*1.5;cubeVelY=-Math.random()*2;
+      // Never fully stop — kick it so it settles at bottom
+      if(Math.abs(cubeVelX)<0.2&&Math.abs(cubeVelY)<0.2){
+        if(cubePY<H-10){
+          cubeVelY=2; // push down if not at bottom
+        } else {
+          cubeVelX=(Math.random()-.5)*1;cubeVelY=-0.5; // tiny bounce at bottom
+        }
       }
       
       c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg) rotateZ(${cubeRZ}deg)`;
