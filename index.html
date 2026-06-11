@@ -560,11 +560,11 @@ function spinCube(){
       let kx=e.clientX-(cubePX+CUBE_SIZE/2),ky=e.clientY-(cubePY+CUBE_SIZE/2);
       let dist=Math.sqrt(kx*kx+ky*ky)||1;
       cubeVelX=-kx/dist*30;cubeVelY=-ky/dist*30;
-      cubeVY=-kx*10;cubeVX=ky*10;cubeVZ=kx*5;
+      cubeVY=-kx*5;cubeVX=ky*5;cubeVZ=kx*2;
     } else {
       // Release after drag — throw with tracked drag speed
       cubeVelX=lastDX*4;cubeVelY=lastDY*4;
-      cubeVY=lastDX*8;cubeVX=-lastDY*8;
+      cubeVY=lastDX*4;cubeVX=-lastDY*4;
     }
     cubeDragging=false;c.style.cursor='grab';
   };
@@ -595,17 +595,12 @@ function spinCube(){
       cubeVX*=0.99;cubeVY*=0.99;cubeVZ*=0.99;
       cubeVX+=cubeVelX*0.3;cubeVY+=cubeVelY*0.3;
       
-      // Resting bottom depends on screen
-      let bottomY=H;
-      let menuScreen=document.getElementById('menu');
-      if(menuScreen&&menuScreen.classList.contains('a'))bottomY=H*0.72; // menu: above leaderboard
-      
-      // Never fully stop — kick it so it settles at appropriate bottom
+      // Never fully stop — kick it so it settles at bottom
       if(Math.abs(cubeVelX)<0.2&&Math.abs(cubeVelY)<0.2){
-        if(cubePY<bottomY-10){
-          cubeVelY=2; // push down toward bottom
+        if(cubePY<H-10){
+          cubeVelY=2;
         } else {
-          cubeVelX=(Math.random()-.5)*1;cubeVelY=-1; // tiny bounce at bottom
+          cubeVelX=(Math.random()-.5)*1;cubeVelY=-1;
         }
       }
       
