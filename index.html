@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Courier New',monospace;background:#060610;color:#0f0;display:flex;
 justify-content:center;align-items:center;min-height:100vh;padding:12px;
-user-select:none;-webkit-tap-highlight-color:transparent}
+user-select:none;-webkit-tap-highlight-color:transparent;perspective:600px}
 .c{max-width:440px;width:100%;text-align:center;position:relative}
 h1{font-size:1.4rem;letter-spacing:3px;color:#0f0;margin:4px 0}
 .sub{font-size:.7rem;color:#050;margin-bottom:8px}
@@ -213,6 +213,15 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 </head>
 <body><div class="c">
 <canvas id="matrixRain" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;opacity:0;transition:opacity .8s"></canvas>
+<!-- Spinning Rubik's cube (color mode) -->
+<div id="rubikCube" style="display:none;position:fixed;bottom:20px;right:20px;width:50px;height:50px;transform-style:preserve-3d;z-index:100;pointer-events:none">
+  <div style="position:absolute;width:50px;height:50px;background:#f44;transform:translateZ(25px);border:2px solid #0008"></div>
+  <div style="position:absolute;width:50px;height:50px;background:#44f;transform:rotateY(180deg)translateZ(25px);border:2px solid #0008"></div>
+  <div style="position:absolute;width:50px;height:50px;background:#0f0;transform:rotateY(-90deg)translateZ(25px);border:2px solid #0008"></div>
+  <div style="position:absolute;width:50px;height:50px;background:#ff0;transform:rotateY(90deg)translateZ(25px);border:2px solid #0008"></div>
+  <div style="position:absolute;width:50px;height:50px;background:#f0f;transform:rotateX(90deg)translateZ(25px);border:2px solid #0008"></div>
+  <div style="position:absolute;width:50px;height:50px;background:#0ff;transform:rotateX(-90deg)translateZ(25px);border:2px solid #0008"></div>
+</div>
 
 
 <!-- LOGIN -->
@@ -501,6 +510,7 @@ function toggleSum(){
   document.getElementById('sumLabel').textContent=G.sum?'Σ ON':'SUM';
   document.getElementById('colorSwitch').checked=false;
   document.getElementById('colorLabel').textContent='COLOR';
+  stopCube();
 }
 
 function toggleColor(){
@@ -508,6 +518,19 @@ function toggleColor(){
   document.getElementById('colorLabel').textContent=G.color?'⬡ ON':'COLOR';
   document.getElementById('sumSwitch').checked=false;
   document.getElementById('sumLabel').textContent='SUM';
+  if(G.color){spinCube()}else{stopCube()}
+}
+
+// ═══ 3D Rubik's cube spinner ═══
+let cubeAnim=null;
+function spinCube(){
+  let c=document.getElementById('rubikCube');c.style.display='block';
+  let deg=0;
+  cubeAnim=setInterval(()=>{deg+=2;c.style.transform=`rotateX(${deg}deg) rotateY(${deg*1.3}deg)`;},30);
+}
+function stopCube(){
+  let c=document.getElementById('rubikCube');c.style.display='none';
+  if(cubeAnim){clearInterval(cubeAnim);cubeAnim=null}
 }
 
 // Color palette: easier levels = fewer colors, harder = more
