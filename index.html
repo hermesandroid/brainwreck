@@ -483,7 +483,15 @@ function toggleSum(){
   btn.style.color=G.sum?'#ff0':'';
 }
 
+// ═══ Timer safety — always clean before starting new ═══
+function killTimer(){
+  if(G.tid){clearInterval(G.tid);G.tid=null}
+  let el=document.getElementById('timerD');if(el){el.classList.remove('blk');el.textContent=''}
+  let bar=document.getElementById('timerBar');if(bar)bar.style.display='none'
+}
+
 function gen(){
+  killTimer(); // safety: kill any leftover timer
   let lv=LV[G.lv],st=lv.s[G.stage];upHUD();
   let d=[];for(let i=0;i<st.dig;i++)d.push(Math.floor(Math.random()*10));
   if(G.sum){
@@ -526,7 +534,7 @@ function gen(){
 }
 
 function hardRecall(){
-  // Typing phase — no timer pressure (except level 9 = 15s)
+  killTimer(); // safety
   document.getElementById('phaseRecall').style.display='block';
   let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   document.getElementById('fbEl').textContent='';
@@ -536,10 +544,8 @@ function hardRecall(){
     document.getElementById('timerBar').style.display='block';
     let timerEl=document.getElementById('timerD');timerEl.textContent='15';timerEl.classList.add('blk');
     G.ts=Date.now();let r=15;
-    if(G.tid)clearInterval(G.tid);
     G.tid=setInterval(()=>{r--;timerEl.textContent=r;
-     if(r<=0){clearInterval(G.tid);G.tid=null;
-      document.getElementById('timerBar').style.display='none';timerEl.classList.remove('blk');
+     if(r<=0){killTimer();
       G.results[G.stage]=false;
       document.getElementById('fbEl').textContent='⏰ TIME!';document.getElementById('fbEl').className='fb b';
       setTimeout(()=>{
@@ -553,7 +559,7 @@ function hardRecall(){
 }
 
 function chickenOut(){
-  if(G.tid)clearInterval(G.tid);G.tid=null;
+  killTimer();
   let excuses=[
     "brain needs stretching… 🧘","too much coffee, brb ☕","forgot how to count 🤷",
     "the dog ate my memory 🐕","need a nap first 💤","studying the numbers… intensely 📖",
@@ -568,7 +574,7 @@ function chickenOut(){
 }
 
 function startTimer(){
-  // Player clicked "I MEMORIZED IT" — start countdown
+  killTimer(); // safety
   let lv=LV[G.lv];
   let totalTime = 4 + lv.id;  // Level 1=5s, Level 9=13s (~14s)
   document.getElementById('memBtn').style.display='none';
@@ -577,11 +583,8 @@ function startTimer(){
   let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
   let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
   G.ts=Date.now();let r=totalTime;
-  if(G.tid)clearInterval(G.tid);
   G.tid=setInterval(()=>{r--;timerEl.textContent=r;
-   if(r<=0){clearInterval(G.tid);G.tid=null;
-    document.getElementById('timerBar').style.display='none';
-    timerEl.classList.remove('blk');
+   if(r<=0){killTimer();
     document.getElementById('phaseMemo').style.display='none';
     // Time's up = wrong
     G.results[G.stage]=false;
@@ -608,10 +611,7 @@ function check(a){
   let lv=LV[G.lv],st=lv.s[G.stage];
   let ok=a===G.exp;
   if(ok){
-    if(G.tid){clearInterval(G.tid);G.tid=null;}
-    document.getElementById('timerBar').style.display='none';
-    document.getElementById('timerD').classList.remove('blk');
-
+    killTimer();
     // Scoring: hard mode = flat points (no time bonus, except level 9)
     let pts;
     if(G.hard && G.lv!==8){
