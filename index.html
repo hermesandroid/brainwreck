@@ -530,8 +530,8 @@ function spinCube(){
   let c=document.getElementById('rubikCube');c.style.display='block';
   c.style.cursor='grab';
   cubeRX=0;cubeRY=0;cubeRZ=0;cubeVX=0;cubeVY=0;cubeVZ=0;
-  cubePX=0;cubePY=0;cubeVelX=0;cubeVelY=0;
-  c.style.right='20px';c.style.bottom='20px';c.style.left='auto';c.style.top='auto';
+  cubePX=window.innerWidth-70;cubePY=window.innerHeight-70;cubeVelX=-3;cubeVelY=-3;
+  c.style.right='auto';c.style.bottom='auto';c.style.left=cubePX+'px';c.style.top=cubePY+'px';
   // Touch/drag events
   c.onpointerdown=e=>{cubeDragging=true;cubeLX=e.clientX;cubeLY=e.clientY;c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';};
   c.onpointermove=e=>{if(!cubeDragging)return;
@@ -539,7 +539,7 @@ function spinCube(){
     cubeVY=dx*10;cubeVX=-dy*10;cubeVZ=(dx-dy)*5;
     cubeRY+=dx*10;cubeRX-=dy*10;cubeRZ+=(dx-dy)*5;
     // Position velocity for bounce physics
-    cubeVelX=dx*2;cubeVelY=-dy*2;
+    cubeVelX=dx*5;cubeVelY=-dy*5;
     cubeLX=e.clientX;cubeLY=e.clientY;
   };
   c.onpointerup=()=>{cubeDragging=false;c.style.cursor='grab';};
