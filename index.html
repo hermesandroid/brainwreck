@@ -221,6 +221,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0">
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD MODE</span></label>
   <button class="b s" id="sumBtn" onclick="toggleSum()" style="width:auto;padding:4px 10px;font-size:.6rem;margin:0">Σ SUM</button>
+  <button class="b s" id="colorBtn" onclick="toggleColor()" style="width:auto;padding:4px 10px;font-size:.6rem;margin:0">🎨 COLOR</button>
 </div>
 <h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
 <div class="desk-layout">
@@ -269,6 +270,16 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   <button class="nk" data-key="9">9</button>
   <button class="nk del" data-key="del">⌫</button>
   <button class="nk" data-key="0">0</button>
+  <button class="nk go" data-key="go">✓</button>
+</div>
+<!-- Color pad (shown in color mode) -->
+<div class="numpad" id="colorPad" style="display:none">
+  <button class="nk" data-key="R" style="background:#400;color:#f44;border-color:#f44">● R</button>
+  <button class="nk" data-key="B" style="background:#004;color:#44f;border-color:#44f">■ B</button>
+  <button class="nk" data-key="G" style="background:#040;color:#0f0;border-color:#0f0">▲ G</button>
+  <button class="nk" data-key="Y" style="background:#440;color:#ff0;border-color:#ff0">★ Y</button>
+  <button class="nk" data-key="P" style="background:#404;color:#f0f;border-color:#f0f">◆ P</button>
+  <button class="nk del" data-key="del">⌫</button>
   <button class="nk go" data-key="go">✓</button>
 </div>
 <button class="b s" style="margin-top:10px" onclick="quitLv()">Quit</button></div>
@@ -328,7 +339,7 @@ const LV = [
 ];
 
 // ═══ STATE ═══
-let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false,sum:false};
+let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false,sum:false,color:false};
 const SB_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
   ? 'http://localhost:8081'
   : 'https://brainwreck.onrender.com';
@@ -423,8 +434,11 @@ function showMenu(){
   // Sync sum button
   let sb=document.getElementById('sumBtn');
   sb.textContent=G.sum?'Σ SUM ON':'Σ SUM';
-  sb.style.borderColor=G.sum?'#ff0':'';
-  sb.style.color=G.sum?'#ff0':'';
+  sb.style.borderColor=G.sum?'#ff0':'';sb.style.color=G.sum?'#ff0':'';
+  // Sync color button
+  let cb=document.getElementById('colorBtn');
+  cb.textContent=G.color?'🎨 COLOR ON':'🎨 COLOR';
+  cb.style.borderColor=G.color?'#f0f':'';cb.style.color=G.color?'#f0f':'';
   let l=document.getElementById('lvList');l.innerHTML='';
   LV.forEach((v,i)=>{
     let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
@@ -478,11 +492,32 @@ function toggleHard(){
 }
 
 function toggleSum(){
-  G.sum=!G.sum;
-  let btn=document.getElementById('sumBtn');
-  btn.textContent=G.sum?'Σ SUM ON':'Σ SUM';
-  btn.style.borderColor=G.sum?'#ff0':'';
-  btn.style.color=G.sum?'#ff0':'';
+  G.sum=!G.sum;G.color=false;
+  let sb=document.getElementById('sumBtn');
+  sb.textContent=G.sum?'Σ SUM ON':'Σ SUM';
+  sb.style.borderColor=G.sum?'#ff0':'';sb.style.color=G.sum?'#ff0':'';
+  let cb=document.getElementById('colorBtn');
+  cb.textContent='🎨 COLOR';cb.style.borderColor='';cb.style.color='';
+}
+
+function toggleColor(){
+  G.color=!G.color;G.sum=false;
+  let btn=document.getElementById('colorBtn');
+  btn.textContent=G.color?'🎨 COLOR ON':'🎨 COLOR';
+  btn.style.borderColor=G.color?'#f0f':'';
+  btn.style.color=G.color?'#f0f':'';
+  let sb=document.getElementById('sumBtn');
+  sb.textContent='Σ SUM';sb.style.borderColor='';sb.style.color='';
+}
+
+// Color palette: easier levels = fewer colors, harder = more
+const COLORS=['#f44','#44f','#0f0','#ff0','#f0f']; // red,blue,green,yellow,purple
+const SHAPES=['●','■','▲','★','◆'];               // circle, square, triangle, star, diamond
+const COLOR_NAMES=['R','B','G','Y','P'];
+function getColorPalette(lvId){
+  if(lvId<=3)return COLORS.slice(0,3);   // levels 1-3: 3 shapes
+  if(lvId<=6)return COLORS.slice(0,4);   // levels 4-6: 4 shapes
+  return COLORS;                          // levels 7-9: 5 shapes
 }
 
 // ═══ Timer safety — always clean before starting new ═══
@@ -500,12 +535,25 @@ function gen(){
     // ═══ SUM MODE: show "4 + 7 + 2", expected = 13 ═══
     G.seq=d.join(' + ');
     G.exp=String(d.reduce((a,b)=>a+b,0));
+  } else if(G.color){
+    // ═══ COLOR MODE: colored shapes — ●■▲★◆ ═══
+    let palette=getColorPalette(lv.id);
+    G.seq='';G.exp='';
+    for(let n of d){
+      let idx=n%palette.length;
+      G.seq+=`<span style="display:inline-block;font-size:2rem;color:${palette[idx]};margin:0 4px">${SHAPES[idx]}</span>`;
+      G.exp+=COLOR_NAMES[idx];
+    }
   } else {
     G.seq=d.join('');G.exp=G.seq;
   }
   document.getElementById('phaseMemo').style.display='block';
   document.getElementById('phaseRecall').style.display='none';
-  document.getElementById('seqD').textContent=G.seq;
+  if(G.color){
+    document.getElementById('seqD').innerHTML=G.seq;
+  } else {
+    document.getElementById('seqD').textContent=G.seq;
+  }
   document.getElementById('fbEl').textContent='';
   if(G.tid)clearInterval(G.tid);G.tid=null;
 
@@ -538,6 +586,8 @@ function gen(){
 function hardRecall(){
   killTimer(); // safety
   document.getElementById('phaseRecall').style.display='block';
+  document.getElementById('numpad').style.display=G.color?'none':'';
+  document.getElementById('colorPad').style.display=G.color?'':'none';
   let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   document.getElementById('fbEl').textContent='';
 
@@ -604,6 +654,8 @@ function startTimer(){
   setTimeout(()=>{
    document.getElementById('phaseMemo').style.display='none';
    document.getElementById('phaseRecall').style.display='block';
+   document.getElementById('numpad').style.display=G.color?'none':'';
+   document.getElementById('colorPad').style.display=G.color?'':'none';
    let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   },400);
 }
@@ -701,9 +753,15 @@ function stopMatrix(){
 
 // ═══ NUMPAD (custom number pad) ═══
 document.addEventListener('DOMContentLoaded',()=>{
+  // Numpad
   let pad=document.getElementById('numpad');
-  if(!pad)return;
-  // Touch + click for instant response (no 300ms delay)
+  if(pad){wirePad(pad);}
+  // Color pad
+  let cpad=document.getElementById('colorPad');
+  if(cpad){wirePad(cpad);}
+});
+
+function wirePad(pad){
   pad.addEventListener('touchstart',function(e){
     e.preventDefault();
     let btn=e.target.closest('.nk');
@@ -723,7 +781,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     else if(k==='go')padSubmit();
     else if(k)padPress(k);
   });
-});
+}
 
 function padPress(d){
   let inp=document.getElementById('ansIn');inp.value+=d;inp.focus()
