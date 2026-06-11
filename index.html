@@ -536,9 +536,9 @@ function spinCube(){
   cubeVelX=(Math.random()-.5)*10;cubeVelY=2;
   c.style.right='auto';c.style.bottom='auto';c.style.left=cubePX+'px';c.style.top=cubePY+'px';
 
-  let tapTime=0;
+  let tapTime=0,lastDX=0,lastDY=0;
   c.onpointerdown=e=>{
-    cubeDragging=true;cubeVelX=0;cubeVelY=0;tapTime=Date.now();
+    cubeDragging=true;cubeVelX=0;cubeVelY=0;tapTime=Date.now();lastDX=0;lastDY=0;
     cubeLX=e.clientX;cubeLY=e.clientY;c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';
     cubePX=e.clientX-CUBE_SIZE/2;cubePY=e.clientY-CUBE_SIZE/2;
     c.style.left=cubePX+'px';c.style.top=cubePY+'px';
@@ -550,6 +550,7 @@ function spinCube(){
     cubePX=e.clientX-CUBE_SIZE/2;cubePY=e.clientY-CUBE_SIZE/2;
     c.style.left=cubePX+'px';c.style.top=cubePY+'px';c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg)`;
     cubeLX=e.clientX;cubeLY=e.clientY;
+    lastDX=dx;lastDY=dy;
   };
   c.onpointerup=e=>{
     let held=Date.now()-tapTime;
@@ -557,11 +558,12 @@ function spinCube(){
       // Quick tap = kick the ball
       let kx=e.clientX-(cubePX+CUBE_SIZE/2),ky=e.clientY-(cubePY+CUBE_SIZE/2);
       let dist=Math.sqrt(kx*kx+ky*ky)||1;
-      cubeVelX=-kx/dist*25;cubeVelY=-ky/dist*25;
-      cubeVY=-kx*8;cubeVX=ky*8;cubeVZ=kx*4;
+      cubeVelX=-kx/dist*30;cubeVelY=-ky/dist*30;
+      cubeVY=-kx*10;cubeVX=ky*10;cubeVZ=kx*5;
     } else {
-      // Release after drag — give throw velocity
-      cubeVelX=(cubeLX-e.clientX)*1.5;cubeVelY=(cubeLY-e.clientY)*1.5;
+      // Release after drag — throw with tracked drag speed
+      cubeVelX=lastDX*4;cubeVelY=lastDY*4;
+      cubeVY=lastDX*8;cubeVX=-lastDY*8;
     }
     cubeDragging=false;c.style.cursor='grab';
   };
