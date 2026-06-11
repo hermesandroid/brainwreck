@@ -109,25 +109,25 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .tab.on{background:#0f02;color:#0f0;border-color:#0f0}
 
 /* ── Hard Mode Toggle Switch ── */
-.hard-toggle{display:inline-flex;align-items:center;gap:4px;margin-right:8px}
-.hard-toggle .switch{position:relative;width:44px;height:24px}
+.hard-toggle{display:inline-flex;align-items:center;gap:2px;margin-right:4px}
+.hard-toggle .switch{position:relative;width:34px;height:20px}
 .hard-toggle .switch input{opacity:0;width:0;height:0}
 .hard-toggle .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
- background:#111;border:1px solid #333;border-radius:24px;transition:.3s}
-.hard-toggle .slider:before{content:'';position:absolute;height:18px;width:18px;
+ background:#111;border:1px solid #333;border-radius:20px;transition:.3s}
+.hard-toggle .slider:before{content:'';position:absolute;height:14px;width:14px;
  left:2px;bottom:2px;background:#555;border-radius:50%;transition:.3s}
 .hard-toggle input:checked+.slider{background:#f440;border-color:#f44}
-.hard-toggle input:checked+.slider:before{transform:translateX(20px);background:#f44}
-.hard-toggle .label{font-size:.55rem;color:#666;letter-spacing:1px}
+.hard-toggle input:checked+.slider:before{transform:translateX(14px);background:#f44}
+.hard-toggle .label{font-size:.5rem;color:#666;letter-spacing:1px}
 .hard-toggle input:checked~.label{color:#f44}
 /* Sum slider — yellow */
 .hard-toggle .slider.sum{} 
 .hard-toggle input:checked+.slider.sum{background:#ff04;border-color:#ff0}
-.hard-toggle input:checked+.slider.sum:before{transform:translateX(20px);background:#ff0}
+.hard-toggle input:checked+.slider.sum:before{transform:translateX(14px);background:#ff0}
 .hard-toggle input:checked+.slider.sum~.label{color:#ff0}
 /* Color slider — purple */
 .hard-toggle input:checked+.slider.col{background:#f0f4;border-color:#f0f}
-.hard-toggle input:checked+.slider.col:before{transform:translateX(20px);background:#f0f}
+.hard-toggle input:checked+.slider.col:before{transform:translateX(14px);background:#f0f}
 .hard-toggle input:checked+.slider.col~.label{color:#f0f}
 .hard-indicator{display:none;color:#f44;font-size:.65rem;letter-spacing:2px}
 .hard-indicator.on{display:inline}
@@ -204,7 +204,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   /* Center menu on desktop */
   #lvList{max-width:550px;margin:10px auto}
   #menu .hud{max-width:550px;margin-left:auto;margin-right:auto}
-  .hard-toggle .label{font-size:.7rem}
+  .hard-toggle .label{font-size:.6rem}
 
   /* Hide numpad on PC — they have keyboards */
   .numpad{display:none}
