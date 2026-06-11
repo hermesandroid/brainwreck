@@ -120,6 +120,15 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .hard-toggle input:checked+.slider:before{transform:translateX(20px);background:#f44}
 .hard-toggle .label{font-size:.55rem;color:#666;letter-spacing:1px}
 .hard-toggle input:checked~.label{color:#f44}
+/* Sum slider — yellow */
+.hard-toggle .slider.sum{} 
+.hard-toggle input:checked+.slider.sum{background:#ff04;border-color:#ff0}
+.hard-toggle input:checked+.slider.sum:before{transform:translateX(20px);background:#ff0}
+.hard-toggle input:checked+.slider.sum~.label{color:#ff0}
+/* Color slider — purple */
+.hard-toggle input:checked+.slider.col{background:#f0f4;border-color:#f0f}
+.hard-toggle input:checked+.slider.col:before{transform:translateX(20px);background:#f0f}
+.hard-toggle input:checked+.slider.col~.label{color:#f0f}
 .hard-indicator{display:none;color:#f44;font-size:.65rem;letter-spacing:2px}
 .hard-indicator.on{display:inline}
 
@@ -219,9 +228,9 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div id="menu" class="s">
 <div class="hud"><span class="pl" id="mPl"></span><span id="onlineDot" style="font-size:.7rem">🟢</span><span class="sc" id="mSc"></span></div>
 <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0">
-  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD MODE</span></label>
-  <button class="b s" id="sumBtn" onclick="toggleSum()" style="width:auto;padding:4px 10px;font-size:.6rem;margin:0">Σ SUM</button>
-  <button class="b s" id="colorBtn" onclick="toggleColor()" style="width:auto;padding:4px 10px;font-size:.6rem;margin:0">🎨 COLOR</button>
+  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD</span></label>
+  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="sumSwitch" onchange="toggleSum()"><span class="slider sum"></span></span><span class="label" id="sumLabel">SUM</span></label>
+  <label class="hard-toggle"><span class="switch"><input type="checkbox" id="colorSwitch" onchange="toggleColor()"><span class="slider col"></span></span><span class="label" id="colorLabel">COLOR</span></label>
 </div>
 <h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
 <div class="desk-layout">
@@ -428,17 +437,13 @@ function showMenu(){
   document.body.className='lv0';
   ss('menu');document.getElementById('mPl').textContent=G.un;document.getElementById('mSc').textContent='★ '+G.sc;
   document.getElementById('btnCountry').textContent='🏳️ '+G.country;
-  // Sync hard mode toggle
+  // Sync toggles
   document.getElementById('hardSwitch').checked=G.hard;
-  document.getElementById('hardLabel').textContent=G.hard?'⚡ HARD ON':'HARD MODE';
-  // Sync sum button
-  let sb=document.getElementById('sumBtn');
-  sb.textContent=G.sum?'Σ SUM ON':'Σ SUM';
-  sb.style.borderColor=G.sum?'#ff0':'';sb.style.color=G.sum?'#ff0':'';
-  // Sync color button
-  let cb=document.getElementById('colorBtn');
-  cb.textContent=G.color?'🎨 COLOR ON':'🎨 COLOR';
-  cb.style.borderColor=G.color?'#f0f':'';cb.style.color=G.color?'#f0f':'';
+  document.getElementById('hardLabel').textContent=G.hard?'⚡ ON':'HARD';
+  document.getElementById('sumSwitch').checked=G.sum;
+  document.getElementById('sumLabel').textContent=G.sum?'Σ ON':'SUM';
+  document.getElementById('colorSwitch').checked=G.color;
+  document.getElementById('colorLabel').textContent=G.color?'⬡ ON':'COLOR';
   let l=document.getElementById('lvList');l.innerHTML='';
   LV.forEach((v,i)=>{
     let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
@@ -487,27 +492,22 @@ function upHUD(){
 
 function toggleHard(){
   G.hard=document.getElementById('hardSwitch').checked;
-  document.getElementById('hardLabel').textContent=G.hard?'⚡ HARD ON':'HARD MODE';
+  document.getElementById('hardLabel').textContent=G.hard?'⚡ ON':'HARD';
   if(G.hard){startMatrix()}else{stopMatrix()}
 }
 
 function toggleSum(){
-  G.sum=!G.sum;G.color=false;
-  let sb=document.getElementById('sumBtn');
-  sb.textContent=G.sum?'Σ SUM ON':'Σ SUM';
-  sb.style.borderColor=G.sum?'#ff0':'';sb.style.color=G.sum?'#ff0':'';
-  let cb=document.getElementById('colorBtn');
-  cb.textContent='🎨 COLOR';cb.style.borderColor='';cb.style.color='';
+  G.sum=document.getElementById('sumSwitch').checked;G.color=false;
+  document.getElementById('sumLabel').textContent=G.sum?'Σ ON':'SUM';
+  document.getElementById('colorSwitch').checked=false;
+  document.getElementById('colorLabel').textContent='COLOR';
 }
 
 function toggleColor(){
-  G.color=!G.color;G.sum=false;
-  let btn=document.getElementById('colorBtn');
-  btn.textContent=G.color?'🎨 COLOR ON':'🎨 COLOR';
-  btn.style.borderColor=G.color?'#f0f':'';
-  btn.style.color=G.color?'#f0f':'';
-  let sb=document.getElementById('sumBtn');
-  sb.textContent='Σ SUM';sb.style.borderColor='';sb.style.color='';
+  G.color=document.getElementById('colorSwitch').checked;G.sum=false;
+  document.getElementById('colorLabel').textContent=G.color?'⬡ ON':'COLOR';
+  document.getElementById('sumSwitch').checked=false;
+  document.getElementById('sumLabel').textContent='SUM';
 }
 
 // Color palette: easier levels = fewer colors, harder = more
