@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>BrainWreck</title>
-<link rel="manifest" href="/brainwreck/manifest.json">
+<link rel="manifest" href="https://hermesandroid.github.io/brainwreck/manifest.json">
 <meta name="theme-color" content="#00ff00">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -754,7 +754,7 @@ updateOnlineStatus();
 if(G.un){document.getElementById('userIn').value=G.un;showMenu()}else ss('login');
 // Register service worker for offline PWA
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/brainwreck/sw.js');
+  navigator.serviceWorker.register('https://hermesandroid.github.io/brainwreck/sw.js');
 }
 </script>
 </body>

@@ -1,8 +1,8 @@
 const CACHE = 'brainwreck-v1';
 const ASSETS = [
-  '/brainwreck/',
-  '/brainwreck/index.html',
-  '/brainwreck/manifest.json',
+  'https://hermesandroid.github.io/brainwreck/',
+  'https://hermesandroid.github.io/brainwreck/index.html',
+  'https://hermesandroid.github.io/brainwreck/manifest.json',
 ];
 
 self.addEventListener('install', e => {
