@@ -835,7 +835,19 @@ updateOnlineStatus();
 if(G.un){document.getElementById('userIn').value=G.un;showMenu()}else ss('login');
 // Register service worker for offline PWA
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('https://hermesandroid.github.io/brainwreck/sw.js');
+  navigator.serviceWorker.register('https://hermesandroid.github.io/brainwreck/sw.js').then(reg => {
+    // Auto-check for updates every 5 minutes
+    setInterval(() => reg.update(), 300000);
+    reg.addEventListener('updatefound', () => {
+      let newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+          // New version available — reload
+          location.reload();
+        }
+      });
+    });
+  });
 }
 </script>
 </body>
