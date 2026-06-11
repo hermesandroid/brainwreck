@@ -122,15 +122,17 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 .hard-indicator.on{display:inline}
 
 /* ── Custom Number Pad ── */
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:280px;margin:8px auto}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:280px;margin:8px auto;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .nk{background:#0a0a1a;color:#0f0;border:2px solid #1a2a1a;font-size:1.4rem;
-  font-family:'Courier New',monospace;padding:12px;cursor:pointer;border-radius:6px;
-  transition:.15s;-webkit-tap-highlight-color:transparent}
-.nk:active{background:#0f0;color:#000;border-color:#0f0;transform:scale(.95)}
+  font-family:'Courier New',monospace;padding:16px 12px;cursor:pointer;border-radius:6px;
+  transition:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  min-height:52px;display:flex;align-items:center;justify-content:center}
+.nk:active,.nk.pressed{background:#0f0;color:#000;border-color:#0f0;transform:scale(.92)}
 .nk.del{color:#f80;border-color:#2a1a0a;font-size:1.1rem}
-.nk.del:active{background:#f80;color:#000}
+.nk.del:active,.nk.del.pressed{background:#f80;color:#000}
 .nk.go{color:#0ff;border-color:#0a2a2a;font-size:1.1rem}
-.nk.go:active{background:#0ff;color:#000}
+.nk.go:active,.nk.go.pressed{background:#0ff;color:#000}
 
 /* Compact recall for numpad */
 #phaseRecall .fb{min-height:24px;font-size:1.3rem;margin:4px 0}
@@ -213,9 +215,10 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
 <!-- MENU -->
 <div id="menu" class="s">
-<div class="hud"><span class="pl" id="mPl"></span><span class="sc" id="mSc"></span></div>
+<div class="hud"><span class="pl" id="mPl"></span><span id="onlineDot" style="font-size:.7rem">🟢</span><span class="sc" id="mSc"></span></div>
 <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0">
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD MODE</span></label>
+  <button class="b s" id="sumBtn" onclick="toggleSum()" style="width:auto;padding:4px 10px;font-size:.6rem;margin:0">Σ SUM</button>
 </div>
 <h1>BRAINWRECK</h1><div class="sub">choose your torture</div>
 <div class="desk-layout">
@@ -253,18 +256,18 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <input class="inp" id="ansIn" inputmode="none" autocomplete="off" readonly onclick="this.blur()">
 <div class="info">tap the numbers below</div>
 <div class="numpad" id="numpad">
-  <button class="nk" onclick="padPress('1')">1</button>
-  <button class="nk" onclick="padPress('2')">2</button>
-  <button class="nk" onclick="padPress('3')">3</button>
-  <button class="nk" onclick="padPress('4')">4</button>
-  <button class="nk" onclick="padPress('5')">5</button>
-  <button class="nk" onclick="padPress('6')">6</button>
-  <button class="nk" onclick="padPress('7')">7</button>
-  <button class="nk" onclick="padPress('8')">8</button>
-  <button class="nk" onclick="padPress('9')">9</button>
-  <button class="nk del" onclick="padBack()">⌫</button>
-  <button class="nk" onclick="padPress('0')">0</button>
-  <button class="nk go" onclick="padSubmit()">✓</button>
+  <button class="nk" data-key="1">1</button>
+  <button class="nk" data-key="2">2</button>
+  <button class="nk" data-key="3">3</button>
+  <button class="nk" data-key="4">4</button>
+  <button class="nk" data-key="5">5</button>
+  <button class="nk" data-key="6">6</button>
+  <button class="nk" data-key="7">7</button>
+  <button class="nk" data-key="8">8</button>
+  <button class="nk" data-key="9">9</button>
+  <button class="nk del" data-key="del">⌫</button>
+  <button class="nk" data-key="0">0</button>
+  <button class="nk go" data-key="go">✓</button>
 </div>
 <button class="b s" style="margin-top:10px" onclick="quitLv()">Quit</button></div>
 </div>
@@ -323,7 +326,7 @@ const LV = [
 ];
 
 // ═══ STATE ═══
-let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false};
+let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false,sum:false};
 const SB_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
   ? 'http://localhost:8081'
   : 'https://brainwreck.onrender.com';
@@ -360,7 +363,40 @@ async function postScore(){
   try{
     await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
      body:JSON.stringify({username:G.un,score:G.sc,country:G.country})});
-  }catch(e){}
+  }catch(e){
+    // Offline — queue for later
+    let q=JSON.parse(localStorage.getItem('bwQueue')||'[]');
+    q.push({username:G.un,score:G.sc,country:G.country,time:Date.now()});
+    localStorage.setItem('bwQueue',JSON.stringify(q));
+  }
+}
+
+// ═══ OFFLINE SYNC ═══
+async function syncOffline(){
+  let q=JSON.parse(localStorage.getItem('bwQueue')||'[]');
+  if(!q.length)return;
+  let synced=[];
+  for(let s of q){
+    try{
+      await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify(s)});
+      synced.push(s);
+    }catch(e){break} // stop on first failure
+  }
+  q=q.filter(s=>!synced.includes(s));
+  localStorage.setItem('bwQueue',JSON.stringify(q));
+  if(!q.length)localStorage.removeItem('bwQueue');
+}
+
+function updateOnlineStatus(){
+  let el=document.getElementById('onlineDot');
+  if(!el)return;
+  if(navigator.onLine){
+    el.textContent='🟢';el.title='Online';
+    syncOffline();
+  }else{
+    el.textContent='🔴';el.title='Offline — scores queued';
+  }
 }
 
 // ═══ SCREENS ═══
@@ -382,6 +418,11 @@ function showMenu(){
   // Sync hard mode toggle
   document.getElementById('hardSwitch').checked=G.hard;
   document.getElementById('hardLabel').textContent=G.hard?'⚡ HARD ON':'HARD MODE';
+  // Sync sum button
+  let sb=document.getElementById('sumBtn');
+  sb.textContent=G.sum?'Σ SUM ON':'Σ SUM';
+  sb.style.borderColor=G.sum?'#ff0':'';
+  sb.style.color=G.sum?'#ff0':'';
   let l=document.getElementById('lvList');l.innerHTML='';
   LV.forEach((v,i)=>{
     let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
@@ -434,10 +475,24 @@ function toggleHard(){
   if(G.hard){startMatrix()}else{stopMatrix()}
 }
 
+function toggleSum(){
+  G.sum=!G.sum;
+  let btn=document.getElementById('sumBtn');
+  btn.textContent=G.sum?'Σ SUM ON':'Σ SUM';
+  btn.style.borderColor=G.sum?'#ff0':'';
+  btn.style.color=G.sum?'#ff0':'';
+}
+
 function gen(){
   let lv=LV[G.lv],st=lv.s[G.stage];upHUD();
   let d=[];for(let i=0;i<st.dig;i++)d.push(Math.floor(Math.random()*10));
-  G.seq=d.join('');G.exp=G.seq;
+  if(G.sum){
+    // ═══ SUM MODE: show "4 + 7 + 2", expected = 13 ═══
+    G.seq=d.join(' + ');
+    G.exp=String(d.reduce((a,b)=>a+b,0));
+  } else {
+    G.seq=d.join('');G.exp=G.seq;
+  }
   document.getElementById('phaseMemo').style.display='block';
   document.getElementById('phaseRecall').style.display='none';
   document.getElementById('seqD').textContent=G.seq;
@@ -643,6 +698,31 @@ function stopMatrix(){
 }
 
 // ═══ NUMPAD (custom number pad) ═══
+document.addEventListener('DOMContentLoaded',()=>{
+  let pad=document.getElementById('numpad');
+  if(!pad)return;
+  // Touch + click for instant response (no 300ms delay)
+  pad.addEventListener('touchstart',function(e){
+    e.preventDefault();
+    let btn=e.target.closest('.nk');
+    if(!btn)return;
+    btn.classList.add('pressed');
+    let k=btn.getAttribute('data-key');
+    if(k==='del')padBack();
+    else if(k==='go')padSubmit();
+    else if(k)padPress(k);
+    setTimeout(()=>btn.classList.remove('pressed'),100);
+  },{passive:false});
+  pad.addEventListener('click',function(e){
+    let btn=e.target.closest('.nk');
+    if(!btn)return;
+    let k=btn.getAttribute('data-key');
+    if(k==='del')padBack();
+    else if(k==='go')padSubmit();
+    else if(k)padPress(k);
+  });
+});
+
 function padPress(d){
   let inp=document.getElementById('ansIn');inp.value+=d;inp.focus()
 }
@@ -665,7 +745,10 @@ document.addEventListener('keydown',function(e){
 });
 
 // ═══ INIT ═══
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
 ld();detectCountry();
+updateOnlineStatus();
 if(G.un){document.getElementById('userIn').value=G.un;showMenu()}else ss('login');
 </script>
 </body>

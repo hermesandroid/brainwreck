@@ -1,0 +1,87 @@
+BrainWreck — Ideas for Tomorrow
+=================================
+
+🎮 GAMEPLAY
+-----------
+1. Speed Round Mode — 30 seconds, infinite digits, see how many you can nail.
+   Leaderboard: "Fastest Brain" category.
+
+2. Reverse + Mirror modes already exist, but what about:
+   - "Sum Mode" — show numbers, you type the SUM. 4 7 2 → 13
+   - "Odd One Out" — show 5 digits, one is different color, you type THAT one
+
+3. Streak Bonuses — 5 correct in a row = 2x points. 10 = 3x. Reset on fail.
+   Small fire emoji 🔥 next to score when streaking.
+
+4. Daily Challenge — one fixed sequence per day. Everyone gets the same.
+   Separate daily leaderboard. "Who memorized today's sequence fastest?"
+
+5. Practice Mode — no scoring, no timer, just relax and train.
+   Good for warming up before ranked play.
+
+
+🏆 SOCIAL / COMPETITIVE
+-----------------------
+6. Share Your Score — "I just hit Level 7 in BrainWreck! 🤯" 
+   Copy-to-clipboard button with score + link. Twitter/X ready text.
+
+7. Head-to-Head — two players, same sequence, fastest wins.
+   Could use a simple room code (4 letters). WebRTC or shared server.
+
+8. Weekly Tournament — top 10 on Sunday get a crown emoji 👑 
+   next to their name all week.
+
+
+🎨 VISUAL / AUDIO
+-----------------
+9. Sound Effects — subtle clicks when tapping numpad. 
+   Victory jingle on level clear. "Wrong" buzzer. Togglable.
+
+10. Particle Explosions — when you clear a level, green particles burst.
+    When you fail, red shatter effect. Canvas-based, lightweight.
+
+11. Dark/Light Theme toggle. Current is "Matrix Dark". Add "Paper White"
+    for daytime play (black text on white, clean).
+
+12. Avatar System — pick from 20 emoji avatars. Shows on leaderboard.
+    🐱🐶🦊🐸👽🤖👻💀🎃
+
+
+📱 TECH / INFRA
+----------------
+13. Offline Mode — full game works without internet. 
+    Queue scores locally, sync when back online.
+
+14. PWA — "Add to Home Screen" prompt. Full-screen, no browser chrome.
+    Already has meta tags, just needs a service worker + manifest.json.
+
+15. Multiple Languages — detect browser language.
+    Level names in Swedish, Spanish, Japanese etc.
+
+16. Accessibility — screen reader support (aria labels on numpad).
+    High contrast mode. Larger text option.
+
+
+🧠 MORE LEVEL THEMES
+--------------------
+17. "Drunk Mode" 🍺 — numbers wobble/shake while displayed.
+    Only available after 10pm (local time). For fun.
+
+18. "Upside Down" 🙃 — sequence displayed upside down.
+    Toggle for chaos mode.
+
+19. Custom Levels — player sets digit count and timer. 
+    Share your level code with friends.
+
+
+💾 PERSISTENCE
+--------------
+20. Player Profiles — multiple users on same device.
+    "Who's playing?" screen. Separate stats per profile.
+
+21. Stats Dashboard — total games, accuracy %, average level,
+    longest streak, best day. Mini analytics.
+
+
+Pick your favorites tomorrow. I'll build whatever you choose.
+Sleep well!
