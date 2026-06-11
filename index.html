@@ -595,12 +595,17 @@ function spinCube(){
       cubeVX*=0.99;cubeVY*=0.99;cubeVZ*=0.99;
       cubeVX+=cubeVelX*0.3;cubeVY+=cubeVelY*0.3;
       
-      // Never fully stop — kick it so it settles at bottom
+      // Resting bottom depends on screen
+      let bottomY=H;
+      let menuScreen=document.getElementById('menu');
+      if(menuScreen&&menuScreen.classList.contains('a'))bottomY=H*0.72; // menu: above leaderboard
+      
+      // Never fully stop — kick it so it settles at appropriate bottom
       if(Math.abs(cubeVelX)<0.2&&Math.abs(cubeVelY)<0.2){
-        if(cubePY<H-10){
-          cubeVelY=2; // push down if not at bottom
+        if(cubePY<bottomY-10){
+          cubeVelY=2; // push down toward bottom
         } else {
-          cubeVelX=(Math.random()-.5)*1;cubeVelY=-0.5; // tiny bounce at bottom
+          cubeVelX=(Math.random()-.5)*1;cubeVelY=-1; // tiny bounce at bottom
         }
       }
       
