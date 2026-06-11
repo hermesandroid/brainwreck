@@ -276,6 +276,8 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
 <input class="inp" id="ansIn" inputmode="none" autocomplete="off" readonly onclick="this.blur()">
 <div class="info">tap the numbers below</div>
+<!-- Colored shape display (shown in color mode) -->
+<div id="ansDisp" style="display:none;font-size:1.8rem;min-height:40px;margin:4px 0;letter-spacing:6px"></div>
 <div class="numpad" id="numpad">
   <button class="nk" data-key="1">1</button>
   <button class="nk" data-key="2">2</button>
@@ -567,7 +569,7 @@ function gen(){
     for(let n of d){
       let idx=n%palette.length;
       G.seq+=`<span style="display:inline-block;font-size:2rem;color:${palette[idx]};margin:0 4px">${SHAPES[idx]}</span>`;
-      G.exp+=COLOR_NAMES[idx];
+      G.exp+=SHAPES[idx];  // answer = shape chars ●■▲★◆
     }
   } else {
     G.seq=d.join('');G.exp=G.seq;
@@ -623,6 +625,9 @@ function hardRecall(){
     });
   }
   let inp=document.getElementById('ansIn');inp.value='';inp.focus();
+  document.getElementById('ansDisp').innerHTML='';
+  document.getElementById('ansDisp').style.display=G.color?'block':'none';
+  inp.style.display=G.color?'none':'';
   document.getElementById('fbEl').textContent='';
 
   if(G.lv===8){ // Level 9 (0-indexed)
@@ -698,6 +703,9 @@ function startTimer(){
     });
    }
    let inp=document.getElementById('ansIn');inp.value='';inp.focus();
+  document.getElementById('ansDisp').innerHTML='';
+  document.getElementById('ansDisp').style.display=G.color?'block':'none';
+  inp.style.display=G.color?'none':'';
   },400);
 }
 
@@ -811,7 +819,11 @@ function wirePad(pad){
     let k=btn.getAttribute('data-key');
     if(k==='del')padBack();
     else if(k==='go')padSubmit();
-    else if(k)padPress(k);
+    else if(k){
+      // Map color letters to shapes
+      let CMAP={R:'●',B:'■',G:'▲',Y:'★',P:'◆'};
+      padPress(CMAP[k]||k);
+    }
     setTimeout(()=>btn.classList.remove('pressed'),100);
   },{passive:false});
   pad.addEventListener('click',function(e){
@@ -820,15 +832,38 @@ function wirePad(pad){
     let k=btn.getAttribute('data-key');
     if(k==='del')padBack();
     else if(k==='go')padSubmit();
-    else if(k)padPress(k);
+    else if(k){
+      // Map color letters to shapes
+      let CMAP={R:'●',B:'■',G:'▲',Y:'★',P:'◆'};
+      padPress(CMAP[k]||k);
+    }
   });
 }
 
 function padPress(d){
-  let inp=document.getElementById('ansIn');inp.value+=d;inp.focus()
+  let inp=document.getElementById('ansIn');inp.value+=d;
+  // Render colored shapes in display div
+  if(G.color){
+    let disp=document.getElementById('ansDisp');
+    let CMAP={R:'●',B:'■',G:'▲',Y:'★',P:'◆'};
+    let CCOLS={R:'#f44',B:'#44f',G:'#0f0',Y:'#ff0',P:'#f0f'};
+    // Find which shape this maps to
+    for(let[k,v]of Object.entries(CMAP)){if(v===d)d=k}
+    disp.innerHTML+=`<span style=\"color:${CCOLS[d]||'#fff'}\">${CMAP[d]||d}</span>`;
+    inp.style.display='none';disp.style.display='block';
+  } else {
+    document.getElementById('ansDisp').style.display='none';
+    inp.style.display='';
+  }
+  inp.focus()
 }
 function padBack(){
-  let inp=document.getElementById('ansIn');inp.value=inp.value.slice(0,-1);inp.focus()
+  let inp=document.getElementById('ansIn');inp.value=inp.value.slice(0,-1);
+  if(G.color){
+    let disp=document.getElementById('ansDisp');
+    disp.innerHTML=disp.innerHTML.replace(/<span[^>]*>[^<]*<\/span>$/,'');
+  }
+  inp.focus()
 }
 function padSubmit(){
   check(document.getElementById('ansIn').value)
