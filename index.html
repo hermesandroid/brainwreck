@@ -538,9 +538,11 @@ const COLORS=['#f44','#44f','#0f0','#ff0','#f0f']; // red,blue,green,yellow,purp
 const SHAPES=['●','■','▲','★','◆'];               // circle, square, triangle, star, diamond
 const COLOR_NAMES=['R','B','G','Y','P'];
 function getColorPalette(lvId){
-  if(lvId<=3)return COLORS.slice(0,3);   // levels 1-3: 3 shapes
-  if(lvId<=6)return COLORS.slice(0,4);   // levels 4-6: 4 shapes
-  return COLORS;                          // levels 7-9: 5 shapes
+  if(!G.hard) return COLORS.slice(0,3);  // normal: always 3 colors
+  // Hard mode: +1 color every 3 levels
+  if(lvId<=3) return COLORS.slice(0,3);  // 3 colors
+  if(lvId<=6) return COLORS.slice(0,4);  // 4 colors
+  return COLORS;                          // 5 colors at level 7-9
 }
 
 // ═══ Timer safety — always clean before starting new ═══
@@ -611,6 +613,15 @@ function hardRecall(){
   document.getElementById('phaseRecall').style.display='block';
   document.getElementById('numpad').style.display=G.color?'none':'';
   document.getElementById('colorPad').style.display=G.color?'':'none';
+  // Show only colors in the active palette
+  if(G.color){
+    let pal=getColorPalette(G.lv!==null?LV[G.lv].id:1);
+    document.querySelectorAll('#colorPad .nk[data-key]').forEach(b=>{
+      let k=b.getAttribute('data-key');
+      if(k==='del'||k==='go')return;
+      b.style.display=COLOR_NAMES.slice(0,pal.length).includes(k)?'':'none';
+    });
+  }
   let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   document.getElementById('fbEl').textContent='';
 
@@ -679,6 +690,13 @@ function startTimer(){
    document.getElementById('phaseRecall').style.display='block';
    document.getElementById('numpad').style.display=G.color?'none':'';
    document.getElementById('colorPad').style.display=G.color?'':'none';
+   if(G.color){
+    let pal=getColorPalette(G.lv!==null?LV[G.lv].id:1);
+    document.querySelectorAll('#colorPad .nk[data-key]').forEach(b=>{
+      let k=b.getAttribute('data-key');if(k==='del'||k==='go')return;
+      b.style.display=COLOR_NAMES.slice(0,pal.length).includes(k)?'':'none';
+    });
+   }
    let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   },400);
 }
