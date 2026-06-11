@@ -530,32 +530,53 @@ function spinCube(){
   let c=document.getElementById('rubikCube');c.style.display='block';
   c.style.cursor='grab';
   cubeRX=0;cubeRY=0;cubeRZ=0;cubeVX=0;cubeVY=0;cubeVZ=0;
-  cubePX=window.innerWidth-70;cubePY=window.innerHeight-70;cubeVelX=-3;cubeVelY=-3;
+  cubePX=window.innerWidth/2-25;cubePY=-60;cubeVelX=(Math.random()-.5)*8;cubeVelY=0;
   c.style.right='auto';c.style.bottom='auto';c.style.left=cubePX+'px';c.style.top=cubePY+'px';
-  // Touch/drag events
-  c.onpointerdown=e=>{cubeDragging=true;cubeLX=e.clientX;cubeLY=e.clientY;c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';};
+  // Touch/drag events — drag = full control, tap = kick
+  let tapTime=0;
+  c.onpointerdown=e=>{
+    cubeDragging=true;cubeVelX=0;cubeVelY=0;tapTime=Date.now();
+    cubeLX=e.clientX;cubeLY=e.clientY;c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';
+    // Follow finger while dragging
+    cubePX=e.clientX-25;cubePY=e.clientY-25;
+    c.style.left=cubePX+'px';c.style.top=cubePY+'px';
+  };
   c.onpointermove=e=>{if(!cubeDragging)return;
     let dx=e.clientX-cubeLX,dy=e.clientY-cubeLY;
+    // Rotation from drag
     cubeVY=dx*10;cubeVX=-dy*10;cubeVZ=(dx-dy)*5;
     cubeRY+=dx*10;cubeRX-=dy*10;cubeRZ+=(dx-dy)*5;
-    // Position velocity for bounce physics
-    cubeVelX=dx*5;cubeVelY=-dy*5;
+    // Follow finger
+    cubePX=e.clientX-25;cubePY=e.clientY-25;
+    c.style.left=cubePX+'px';c.style.top=cubePY+'px';
     cubeLX=e.clientX;cubeLY=e.clientY;
   };
-  c.onpointerup=()=>{cubeDragging=false;c.style.cursor='grab';};
+  c.onpointerup=e=>{
+    let held=Date.now()-tapTime;
+    if(held<200){
+      // Quick tap = KICK! Calculate direction from cube center to tap point
+      let kx=e.clientX-(cubePX+25),ky=e.clientY-(cubePY+25);
+      let dist=Math.sqrt(kx*kx+ky*ky)||1;
+      cubeVelX=-kx/dist*20;cubeVelY=-ky/dist*20; // kick away from tap
+      cubeVY=-kx*5;cubeVX=ky*5; // spin on kick
+    }
+    cubeDragging=false;c.style.cursor='grab';
+  };
   // Physics loop with bounce
   function physics(){
     if(!cubeDragging){
+      // Gravity
+      cubeVelY+=0.4;
       cubeRX+=cubeVX;cubeRY+=cubeVY;cubeRZ+=cubeVZ;
       cubeVX*=0.985;cubeVY*=0.985;cubeVZ*=0.985;
       // Position movement with bounce
       cubePX+=cubeVelX;cubePY+=cubeVelY;
       let W=window.innerWidth-70,H=window.innerHeight-70;
-      if(cubePX<0){cubePX=0;cubeVelX*=-0.7;cubeVY*=-0.5}
-      if(cubePX>W){cubePX=W;cubeVelX*=-0.7;cubeVY*=-0.5}
-      if(cubePY<0){cubePY=0;cubeVelY*=-0.7;cubeVX*=-0.5}
-      if(cubePY>H){cubePY=H;cubeVelY*=-0.7;cubeVX*=-0.5}
-      cubeVelX*=0.995;cubeVelY*=0.995;
+      if(cubePX<0){cubePX=0;cubeVelX*=-0.65;cubeVY*=-0.4}
+      if(cubePX>W){cubePX=W;cubeVelX*=-0.65;cubeVY*=-0.4}
+      if(cubePY<0){cubePY=0;cubeVelY*=-0.65;cubeVX*=-0.4}
+      if(cubePY>H){cubePY=H;cubeVelY*=-0.65;cubeVX*=-0.4;cubeRY+=cubeVelX*2}
+      cubeVelX*=0.998;cubeVelY*=0.998;
     }
     c.style.transform=`rotateX(${cubeRX}deg) rotateY(${cubeRY}deg) rotateZ(${cubeRZ}deg)`;
     c.style.right='auto';c.style.bottom='auto';
