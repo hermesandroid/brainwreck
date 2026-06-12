@@ -198,10 +198,14 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   .lc .nm{font-size:1rem}
   .lc .ds{font-size:.7rem}
 
-  /* Desktop dual-pane: game area + sidebar */
+  /* Desktop triple-pane: nav buttons | level cards | leaderboard */
   .desk-layout{display:flex;gap:20px;align-items:flex-start;justify-content:center}
-  .desk-main{flex:1;max-width:550px}
-  .desk-side{width:280px;display:none}
+  .desk-nav{width:150px;display:none;flex-shrink:0}
+  .desk-nav.show{display:flex;flex-direction:column;gap:4px}
+  .desk-nav .b{width:100%;font-size:.68rem;padding:8px 12px;margin:0}
+  .desk-nav .b.s{font-size:.62rem;padding:6px 10px}
+  .desk-main{flex:1;max-width:500px}
+  .desk-side{width:260px;display:none;flex-shrink:0}
   .desk-side.show{display:block}
   .desk-side .lb{font-size:.7rem;max-width:none;max-height:60vh;overflow-y:auto}
 
@@ -220,6 +224,8 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
   /* Hide numpad on PC — they have keyboards */
   #numpad.numpad{display:none}
+  /* Hide mobile buttons on desktop */
+  .mob-btns{display:none}
 }
 
 /* ── How to Play popup ── */
@@ -315,6 +321,12 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 </div>
 <h1 style="margin:6px 0 2px">BRAINWRECK</h1><div class="sub">choose your challenge</div>
 <div class="desk-layout">
+  <div class="desk-nav" id="deskNav">
+    <button class="b o" onclick="showLB('global')">🌍 Global</button>
+    <button class="b o" id="btnCountryD" onclick="showLB('country')">🏳️ Country</button>
+    <button class="b s" onclick="logout()">Change Player</button>
+    <button class="b s" onclick="showHowToPlay()">📖 How to Play</button>
+  </div>
   <div class="desk-main">
     <div id="lvList" style="margin:10px 0"></div>
   </div>
@@ -323,11 +335,11 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
     <div class="lb" id="deskLB"></div>
   </div>
 </div>
-<div style="display:flex;justify-content:center;gap:6px;margin:8px 0;flex-wrap:wrap">
+<div class="mob-btns" style="display:flex;justify-content:center;gap:6px;margin:8px 0;flex-wrap:wrap">
   <button class="b o" onclick="showLB('global')" style="max-width:180px;flex:1;min-width:140px">🌍 Global</button>
   <button class="b o" id="btnCountry" onclick="showLB('country')" style="max-width:180px;flex:1;min-width:140px">🏳️ Country</button>
 </div>
-<div style="display:flex;justify-content:center;gap:6px;margin:4px 0;flex-wrap:wrap">
+<div class="mob-btns" style="display:flex;justify-content:center;gap:6px;margin:4px 0;flex-wrap:wrap">
   <button class="b s" onclick="logout()" style="max-width:180px;flex:1;min-width:140px">Change Player</button>
   <button class="b s" onclick="showHowToPlay()" style="max-width:180px;flex:1;min-width:140px">📖 How to Play</button>
 </div>
@@ -558,7 +570,9 @@ function showMenu(){
     d.innerHTML=`<div class="emo">${v.e}</div><div class="info"><div class="nm">${v.n}</div><div class="ds">${v.d}</div></div><div class="st">${lk?'🔒':'★'.repeat(s)+'☆'.repeat(3-s)}</div>`;
     if(!lk)d.onclick=()=>startLv(i);l.appendChild(d)
   })
-  // Load sidebar leaderboard (desktop only)
+  // Load sidebar leaderboard + show desktop nav (desktop only)
+  document.getElementById('deskNav').classList.add('show');
+  document.getElementById('btnCountryD').textContent='🏳️ '+G.country;
   loadSidebarLB();
 }
 
