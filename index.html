@@ -200,19 +200,21 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
   /* Desktop triple-pane: nav buttons | level cards | leaderboard */
   .desk-layout{display:flex;gap:20px;align-items:flex-start;justify-content:center}
-  .desk-nav{width:150px;display:none;flex-shrink:0}
-  .desk-nav.show{display:flex;flex-direction:column;gap:4px}
-  .desk-nav .b{width:100%;font-size:.68rem;padding:8px 12px;margin:0}
-  .desk-nav .b.s{font-size:.62rem;padding:6px 10px}
-  .desk-main{flex:1;max-width:500px}
+  .desk-nav{width:170px;display:none;flex-shrink:0}
+  .desk-nav.show{display:flex;flex-direction:column;gap:5px}
+  .desk-nav .b{width:100%;font-size:.78rem;padding:12px 16px;margin:0;border-radius:8px;
+    background:#0a0a1a;border:1px solid #1a2a1a;text-align:center}
+  .desk-nav .b.o{border-color:#f804;color:#f80}
+  .desk-nav .b.o:hover,.desk-nav .b.o:active{background:#f80;color:#000}
+  .desk-nav .b.s{font-size:.7rem;padding:10px 14px;border-color:#222;color:#666}
+  .desk-nav .b.s:hover,.desk-nav .b.s:active{background:#222;color:#0f0}
+  .desk-main{flex:1;max-width:480px}
   .desk-side{width:260px;display:none;flex-shrink:0}
   .desk-side.show{display:block}
   .desk-side .lb{font-size:.7rem;max-width:none;max-height:60vh;overflow-y:auto}
 
-  /* Bigger dots */
-  .dots span{width:16px;height:16px}
-  .dots{gap:6px;margin:14px 0}
-
+  /* Hide mobile buttons on desktop (inline display:flex override) */
+  .mob-btns{display:none!important}
   /* Bigger timer bar on desktop */
   #timerBar .timer.big{font-size:5rem}
   #timerBar .info{font-size:.85rem}
@@ -224,8 +226,10 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
   /* Hide numpad on PC — they have keyboards */
   #numpad.numpad{display:none}
-  /* Hide mobile buttons on desktop */
-  .mob-btns{display:none}
+
+  /* Bigger dots */
+  .dots span{width:16px;height:16px}
+  .dots{gap:6px;margin:14px 0}
 }
 
 /* ── How to Play popup ── */
