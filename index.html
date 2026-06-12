@@ -219,7 +219,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   .hard-toggle .label{font-size:.6rem}
 
   /* Hide numpad on PC — they have keyboards */
-  .numpad{display:none}
+  #numpad.numpad{display:none}
 }
 
 /* ── How to Play popup ── */
@@ -304,13 +304,16 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
 <!-- MENU -->
 <div id="menu" class="s">
-<div class="hud"><span class="pl" id="mPl"></span><span class="sc" id="mSc"></span></div>
-<div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0">
+<div class="hud" style="display:flex;justify-content:center;gap:24px;font-size:.8rem">
+  <span class="pl" id="mPl" style="color:#0f0;font-weight:bold"></span>
+  <span class="sc" id="mSc" style="color:#0ff;font-weight:bold"></span>
+</div>
+<div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0">
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="hardSwitch" onchange="toggleHard()"><span class="slider"></span></span><span class="label" id="hardLabel">HARD</span></label>
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="sumSwitch" onchange="toggleSum()"><span class="slider sum"></span></span><span class="label" id="sumLabel">SUM</span></label>
   <label class="hard-toggle"><span class="switch"><input type="checkbox" id="colorSwitch" onchange="toggleColor()"><span class="slider col"></span></span><span class="label" id="colorLabel">COLOR</span></label>
 </div>
-<h1>BRAINWRECK</h1><div class="sub">choose your challenge</div>
+<h1 style="margin:6px 0 2px">BRAINWRECK</h1><div class="sub">choose your challenge</div>
 <div class="desk-layout">
   <div class="desk-main">
     <div id="lvList" style="margin:10px 0"></div>
@@ -320,10 +323,14 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
     <div class="lb" id="deskLB"></div>
   </div>
 </div>
-<button class="b o" onclick="showLB('global')">🌍 Global</button>
-<button class="b o" id="btnCountry" onclick="showLB('country')">🏳️ Country</button>
-<button class="b s" style="margin-top:4px" onclick="logout()">Change Player</button>
-<button class="b s" style="margin-top:4px" onclick="showHowToPlay()">📖 How to Play</button>
+<div style="display:flex;justify-content:center;gap:6px;margin:8px 0;flex-wrap:wrap">
+  <button class="b o" onclick="showLB('global')" style="max-width:180px;flex:1;min-width:140px">🌍 Global</button>
+  <button class="b o" id="btnCountry" onclick="showLB('country')" style="max-width:180px;flex:1;min-width:140px">🏳️ Country</button>
+</div>
+<div style="display:flex;justify-content:center;gap:6px;margin:4px 0;flex-wrap:wrap">
+  <button class="b s" onclick="logout()" style="max-width:180px;flex:1;min-width:140px">Change Player</button>
+  <button class="b s" onclick="showHowToPlay()" style="max-width:180px;flex:1;min-width:140px">📖 How to Play</button>
+</div>
 </div>
 
 <!-- GAME -->
@@ -542,6 +549,8 @@ function showMenu(){
   document.getElementById('sumLabel').textContent=G.sum?'Σ ON':'SUM';
   document.getElementById('colorSwitch').checked=G.color;
   document.getElementById('colorLabel').textContent=G.color?'⬡ ON':'COLOR';
+  // Restart cube if color mode is on
+  if(G.color){spinCube()}else{stopCube()}
   let l=document.getElementById('lvList');l.innerHTML='';
   LV.forEach((v,i)=>{
     let s=G.stars[v.id]||0,lk=i>0&&!G.stars[LV[i-1].id];
@@ -572,7 +581,7 @@ async function loadSidebarLB(){
 }
 
 // ═══ LEVEL ═══
-function startLv(idx){G.lv=idx;G.stage=0;G.results=[];document.getElementById('brandBar').style.display='none';document.body.className='lv'+LV[idx].id;ss('game');upHUD();gen()}
+function startLv(idx){G.lv=idx;G.stage=0;G.results=[];document.getElementById('brandBar').style.display='none';document.body.className='lv'+LV[idx].id;stopCube();ss('game');upHUD();gen()}
 function retryLv(){G.stage=0;G.results=[];document.body.className='lv'+LV[G.lv].id;ss('game');upHUD();gen()}
 function quitLv(){if(G.tid)clearInterval(G.tid);G.lv=null;document.body.className='lv0';postScore();showMenu()}
 function quitToMenu(){quitLv()}
