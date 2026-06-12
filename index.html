@@ -33,6 +33,18 @@ border-radius:4px;letter-spacing:2px;outline:none;margin:6px 0}
 .hud .lv{color:#f80;font-weight:bold}
 .hud .pl{color:#888}
 .dots{display:flex;gap:4px;justify-content:center;margin:10px 0}
+
+/* ── Fixed game HUD bar (top-left name, centered level) ── */
+#gameHud{position:fixed;top:0;left:0;right:0;z-index:150;
+  background:#060610ee;padding:6px 12px;border-bottom:1px solid #111;
+  display:flex;align-items:center;font-size:.7rem;height:32px}
+#gameHud .pl{color:#888;min-width:60px}
+#gameHud .lv{color:#f80;font-weight:bold;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+#gameHud .sc{color:#0ff;font-size:1rem;font-weight:bold;margin-left:auto}
+/* Push game content below fixed HUD */
+#game{padding-top:36px}
+/* Timer bar sits below fixed HUD */
+#timerBar{top:32px}
 .dots span{width:12px;height:12px;border-radius:50%;background:#111;border:1px solid #333}
 .dots .ok{background:#0f0;border-color:#0f0}
 .dots .no{background:#f44;border-color:#f44}
@@ -316,7 +328,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
 <!-- GAME -->
 <div id="game" class="s">
-<div class="hud"><span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span></div>
+<div class="hud" id="gameHud"><span class="pl" id="gPl"></span><span class="lv" id="gLv"></span><span class="sc" id="gSc"></span></div>
 <div class="info" id="gStage"></div><div class="dots" id="gDots"></div>
 
 <!-- Big countdown bar — always visible, floats above keyboard -->
