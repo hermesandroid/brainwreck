@@ -737,15 +737,18 @@ function gen(){
     // ═══ HARD MODE: auto-countdown for memorize ═══
     document.getElementById('memBtn').style.display='none';
     document.getElementById('chickenBtn').style.display='none';
-    document.getElementById('timerBar').style.display='none';
     document.getElementById('memoInfo').textContent='⚡ HARD — memorizing…';
     let memoTime=4+lv.id; // same as normal typing timer
+    // Move timer below the sequence — sequence is the focus
+    let tb=document.getElementById('timerBar');
+    document.getElementById('seqD').after(tb);
+    tb.style.position='static';
     let timerEl=document.getElementById('timerD');timerEl.textContent=memoTime;timerEl.classList.add('blk');
-    document.getElementById('timerBar').style.display='block';
+    tb.style.display='block';
     let r=memoTime;
     G.tid=setInterval(()=>{r--;timerEl.textContent=r;
      if(r<=0){clearInterval(G.tid);G.tid=null;
-      document.getElementById('timerBar').style.display='none';timerEl.classList.remove('blk');
+      tb.style.display='none';timerEl.classList.remove('blk');
       document.getElementById('phaseMemo').style.display='none';
       // Show typing phase — no timer (or 15s for level 9)
       hardRecall();
@@ -781,11 +784,15 @@ function hardRecall(){
 
   if(G.lv===8){ // Level 9 (0-indexed)
     document.getElementById('memoInfo').textContent='⚡ Type it! 15 seconds!';
-    document.getElementById('timerBar').style.display='none';
+    // Restore timerBar to sticky position at top
+    let tb=document.getElementById('timerBar');
+    document.getElementById('game').insertBefore(tb, document.getElementById('phaseMemo'));
+    tb.style.position='';
+    tb.style.display='none';
     // Timer starts after 600ms — player sees the pads first
     setTimeout(()=>{
       G.ts=Date.now();
-      document.getElementById('timerBar').style.display='block';
+      tb.style.display='block';
       let timerEl=document.getElementById('timerD');timerEl.textContent='15';timerEl.classList.add('blk');
       let r=15;
       G.tid=setInterval(()=>{r--;timerEl.textContent=r;
@@ -842,11 +849,15 @@ function startTimer(){
   document.getElementById('ansDisp').style.display=G.color?'block':'none';
   inp.style.display=G.color?'none':'';
   document.getElementById('fbEl').textContent='';document.getElementById('fbEl').style.display='none';
-  document.getElementById('timerBar').style.display='none';
+  // Restore timerBar to sticky position at top of game area
+  let tb=document.getElementById('timerBar');
+  document.getElementById('game').insertBefore(tb, document.getElementById('phaseMemo'));
+  tb.style.position='';
+  tb.style.display='none';
   // Timer starts after 600ms — player sees the pads first
   setTimeout(()=>{
     G.ts=Date.now();
-    document.getElementById('timerBar').style.display='block';
+    tb.style.display='block';
     let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
     let r=totalTime;
     G.tid=setInterval(()=>{r--;timerEl.textContent=r;
