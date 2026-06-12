@@ -777,7 +777,7 @@ function hardRecall(){
   document.getElementById('ansDisp').innerHTML='';
   document.getElementById('ansDisp').style.display=G.color?'block':'none';
   inp.style.display=G.color?'none':'';
-  document.getElementById('fbEl').textContent='';
+  document.getElementById('fbEl').textContent='';document.getElementById('fbEl').style.display='none';
 
   if(G.lv===8){ // Level 9 (0-indexed)
     document.getElementById('memoInfo').textContent='⚡ Type it! 15 seconds!';
@@ -791,7 +791,7 @@ function hardRecall(){
       G.tid=setInterval(()=>{r--;timerEl.textContent=r;
        if(r<=0){killTimer();
         G.results[G.stage]=false;
-        document.getElementById('fbEl').textContent='⏰ TIME!';document.getElementById('fbEl').className='fb b';
+        document.getElementById('fbEl').textContent='⏰ TIME!';document.getElementById('fbEl').className='fb b';document.getElementById('fbEl').style.display='';
         setTimeout(()=>{
          document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level 9 — THE MATRIX 💊';
          ss('lvFail');let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
@@ -841,18 +841,19 @@ function startTimer(){
   document.getElementById('ansDisp').innerHTML='';
   document.getElementById('ansDisp').style.display=G.color?'block':'none';
   inp.style.display=G.color?'none':'';
+  document.getElementById('fbEl').textContent='';document.getElementById('fbEl').style.display='none';
   document.getElementById('timerBar').style.display='none';
   // Timer starts after 600ms — player sees the pads first
   setTimeout(()=>{
     G.ts=Date.now();
-    let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
+    document.getElementById('timerBar').style.display='block';
     let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
     let r=totalTime;
     G.tid=setInterval(()=>{r--;timerEl.textContent=r;
      if(r<=0){killTimer();
       G.results[G.stage]=false;
       document.getElementById('fbEl').textContent='⏰ TIME!';
-      document.getElementById('fbEl').className='fb b';
+      document.getElementById('fbEl').className='fb b';document.getElementById('fbEl').style.display='';
       setTimeout(()=>{
        document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level '+lv.id+' — '+lv.n;
        ss('lvFail');
@@ -879,7 +880,7 @@ function check(a){
       pts=Math.floor(100*lv.id*st.m+timeBonus);
     }
     G.sc+=pts;G.results[G.stage]=true;sv();
-    let fb=document.getElementById('fbEl');fb.innerHTML='✓ CORRECT!<br><span class="pts">+'+pts+' pts</span>';fb.className='fb g';
+    let fb=document.getElementById('fbEl');fb.innerHTML='✓ CORRECT!<br><span class="pts">+'+pts+' pts</span>';fb.className='fb g';fb.style.display='';
     G.stage++;
     if(G.stage>=3){
       let stars=G.results.filter(r=>r===true).length;G.stars[lv.id]=Math.max(G.stars[lv.id]||0,stars);
@@ -887,7 +888,7 @@ function check(a){
     }else setTimeout(()=>gen(),700)
   }else{
     G.results[G.stage]=false;
-    document.getElementById('fbEl').textContent='✗ WRONG!';document.getElementById('fbEl').className='fb b';
+    document.getElementById('fbEl').textContent='✗ WRONG!';document.getElementById('fbEl').className='fb b';document.getElementById('fbEl').style.display='';
     setTimeout(()=>{
       document.getElementById('flDetail').innerHTML='Was: <b style="color:#fff">'+G.exp+'</b><br>You typed: <b style="color:#f44">'+a+'</b><br>Level '+lv.id+' — '+lv.n;
       ss('lvFail');
