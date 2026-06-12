@@ -781,18 +781,23 @@ function hardRecall(){
 
   if(G.lv===8){ // Level 9 (0-indexed)
     document.getElementById('memoInfo').textContent='⚡ Type it! 15 seconds!';
-    document.getElementById('timerBar').style.display='block';
-    let timerEl=document.getElementById('timerD');timerEl.textContent='15';timerEl.classList.add('blk');
-    G.ts=Date.now();let r=15;
-    G.tid=setInterval(()=>{r--;timerEl.textContent=r;
-     if(r<=0){killTimer();
-      G.results[G.stage]=false;
-      document.getElementById('fbEl').textContent='⏰ TIME!';document.getElementById('fbEl').className='fb b';
-      setTimeout(()=>{
-       document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level 9 — THE MATRIX 💊';
-       ss('lvFail');let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
-      },600);
-     }},1000);
+    document.getElementById('timerBar').style.display='none';
+    // Timer starts after 600ms — player sees the pads first
+    setTimeout(()=>{
+      G.ts=Date.now();
+      document.getElementById('timerBar').style.display='block';
+      let timerEl=document.getElementById('timerD');timerEl.textContent='15';timerEl.classList.add('blk');
+      let r=15;
+      G.tid=setInterval(()=>{r--;timerEl.textContent=r;
+       if(r<=0){killTimer();
+        G.results[G.stage]=false;
+        document.getElementById('fbEl').textContent='⏰ TIME!';document.getElementById('fbEl').className='fb b';
+        setTimeout(()=>{
+         document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level 9 — THE MATRIX 💊';
+         ss('lvFail');let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
+        },600);
+       }},1000);
+    },600);
   } else {
     document.getElementById('timerBar').style.display='none';
   }
@@ -820,42 +825,41 @@ function startTimer(){
   document.getElementById('memBtn').style.display='none';
   document.getElementById('chickenBtn').style.display='none';
   document.getElementById('memoInfo').textContent='GO! Type it back!';
-  let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
-  let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
-  G.ts=Date.now();let r=totalTime;
-  G.tid=setInterval(()=>{r--;timerEl.textContent=r;
-   if(r<=0){killTimer();
-    document.getElementById('phaseMemo').style.display='none';
-    // Time's up = wrong
-    G.results[G.stage]=false;
-    document.getElementById('fbEl').textContent='⏰ TIME!';
-    document.getElementById('fbEl').className='fb b';
-    setTimeout(()=>{
-     document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level '+lv.id+' — '+lv.n;
-     ss('lvFail');
-     let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
-    },600);
-    // Auto-transition to recall for UI consistency
-    document.getElementById('phaseRecall').style.display='block';
-   }},1000);
-  // Show recall input immediately
-  setTimeout(()=>{
-   document.getElementById('phaseMemo').style.display='none';
-   document.getElementById('phaseRecall').style.display='block';
-   document.getElementById('numpad').style.display=G.color?'none':'';
-   document.getElementById('colorPad').style.display=G.color?'':'none';
-   if(G.color){
-    let pal=getColorPalette(G.lv!==null?LV[G.lv].id:1);
-    document.querySelectorAll('#colorPad .nk[data-key]').forEach(b=>{
-      let k=b.getAttribute('data-key');if(k==='del'||k==='go')return;
-      b.style.display=COLOR_NAMES.slice(0,pal.length).includes(k)?'':'none';
-    });
-   }
-   let inp=document.getElementById('ansIn');inp.value='';inp.focus();
+  // ═══ Show pads FIRST, timer starts after ═══
+  document.getElementById('phaseMemo').style.display='none';
+  document.getElementById('phaseRecall').style.display='block';
+  document.getElementById('numpad').style.display=G.color?'none':'';
+  document.getElementById('colorPad').style.display=G.color?'':'none';
+  if(G.color){
+   let pal=getColorPalette(G.lv!==null?LV[G.lv].id:1);
+   document.querySelectorAll('#colorPad .nk[data-key]').forEach(b=>{
+     let k=b.getAttribute('data-key');if(k==='del'||k==='go')return;
+     b.style.display=COLOR_NAMES.slice(0,pal.length).includes(k)?'':'none';
+   });
+  }
+  let inp=document.getElementById('ansIn');inp.value='';inp.focus();
   document.getElementById('ansDisp').innerHTML='';
   document.getElementById('ansDisp').style.display=G.color?'block':'none';
   inp.style.display=G.color?'none':'';
-  },400);
+  document.getElementById('timerBar').style.display='none';
+  // Timer starts after 600ms — player sees the pads first
+  setTimeout(()=>{
+    G.ts=Date.now();
+    let timerBar=document.getElementById('timerBar');timerBar.style.display='block';
+    let timerEl=document.getElementById('timerD');timerEl.textContent=totalTime;timerEl.classList.add('blk');
+    let r=totalTime;
+    G.tid=setInterval(()=>{r--;timerEl.textContent=r;
+     if(r<=0){killTimer();
+      G.results[G.stage]=false;
+      document.getElementById('fbEl').textContent='⏰ TIME!';
+      document.getElementById('fbEl').className='fb b';
+      setTimeout(()=>{
+       document.getElementById('flDetail').innerHTML='Time ran out!<br>Sequence was: <b style="color:#fff">'+G.exp+'</b><br>Level '+lv.id+' — '+lv.n;
+       ss('lvFail');
+       let rb=document.getElementById('lvFail').querySelector('.b.o');if(rb)rb.style.display='';
+      },600);
+     }},1000);
+  },600);
 }
 
 function check(a){
