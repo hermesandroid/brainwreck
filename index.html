@@ -172,6 +172,8 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 #timerBar .info{margin:0;font-size:.65rem}
 
 /* ── DESKTOP / WIDE SCREEN (auto-detected) ── */
+/* Base: hide desktop-only elements on mobile */
+.desk-nav{display:none}
 @media(min-width:768px){
   .c{max-width:900px}
   h1{font-size:2rem;letter-spacing:6px}
