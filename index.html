@@ -429,13 +429,14 @@ const LV = [
 ];
 
 // ═══ STATE ═══
-let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false,sum:false,color:false};
+let G={un:'',sc:0,country:'XX',lv:null,stage:0,seq:'',exp:'',results:[],stars:{},tid:null,ts:0,hard:false,sum:false,color:false,secret:''};
 const SB_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
   ? 'http://localhost:8081'
   : 'https://brainwreck.onrender.com';
 
-function ld(){try{let d=JSON.parse(localStorage.getItem('bw')||'{}');if(d.un)G.un=d.un;if(d.sc)G.sc=d.sc;if(d.st)G.stars=d.st;if(d.co)G.country=d.co}catch(e){}}
-function sv(){localStorage.setItem('bw',JSON.stringify({un:G.un,sc:G.sc,st:G.stars,co:G.country}))}
+function ld(){try{let d=JSON.parse(localStorage.getItem('bw')||'{}');if(d.un)G.un=d.un;if(d.sc)G.sc=d.sc;if(d.st)G.stars=d.st;if(d.co)G.country=d.co;if(d.se)G.secret=d.se}catch(e){}}
+function sv(){localStorage.setItem('bw',JSON.stringify({un:G.un,sc:G.sc,st:G.stars,co:G.country,se:G.secret}))}
+function genSecret(){let a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('')}
 
 // ═══ COUNTRY DETECTION ═══
 async function detectCountry(){
@@ -464,12 +465,16 @@ async function fetchLB(country){
 }
 async function postScore(){
   try{
-    await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({username:G.un,score:G.sc,country:G.country})});
+    let r=await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({username:G.un,score:G.sc,country:G.country,secret:G.secret})});
+    let d=await r.json();
+    if(d.reason==='name_taken'){
+      console.warn('⚠ Name taken by another device — scores not saved to leaderboard');
+    }
   }catch(e){
     // Offline — queue for later
     let q=JSON.parse(localStorage.getItem('bwQueue')||'[]');
-    q.push({username:G.un,score:G.sc,country:G.country,time:Date.now()});
+    q.push({username:G.un,score:G.sc,country:G.country,secret:G.secret,time:Date.now()});
     localStorage.setItem('bwQueue',JSON.stringify(q));
   }
 }
@@ -517,7 +522,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 async function doLogin(){
   let n=document.getElementById('userIn').value.trim();
   if(n.length<2){document.getElementById('loginErr').textContent='At least 2 characters!';return}
-  G.un=n;ld();if(!G.sc)G.sc=0;sv();document.getElementById('loginErr').textContent='';showMenu()
+  G.un=n;ld();if(!G.sc)G.sc=0;
+  // Generate secret key if first time (or name changed)
+  if(!G.secret||G.un!==n){G.secret=genSecret()}
+  sv();document.getElementById('loginErr').textContent='';showMenu()
 }
 function logout(){G.un='';G.sc=0;G.stars={};sv();document.body.className='';ss('login')}
 
