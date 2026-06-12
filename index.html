@@ -209,6 +209,30 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   /* Hide numpad on PC — they have keyboards */
   .numpad{display:none}
 }
+
+/* ── How to Play popup ── */
+#howToPlay{z-index:300}.htp-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+ background:#000e;z-index:299;display:none}
+.htp-overlay.show{display:flex;justify-content:center;align-items:center;padding:12px}
+.htp-card{background:#0a0a1a;border:2px solid #0f0;border-radius:12px;padding:20px;
+ max-width:440px;width:100%;max-height:85vh;overflow-y:auto;position:relative}
+.htp-card h2{font-size:1.2rem;color:#0f0;letter-spacing:3px;margin-bottom:10px}
+.htp-card h3{font-size:.8rem;color:#f80;margin:12px 0 4px;letter-spacing:1px}
+.htp-card p{font-size:.65rem;color:#aaa;line-height:1.5;margin:4px 0}
+.htp-card .mode-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.6rem;
+ font-weight:bold;letter-spacing:1px;margin-right:4px}
+.htp-card .tag-n{color:#0f0;border:1px solid #0f0}
+.htp-card .tag-h{color:#f44;border:1px solid #f44}
+.htp-card .tag-s{color:#ff0;border:1px solid #ff0}
+.htp-card .tag-c{color:#f0f;border:1px solid #f0f}
+.htp-btn{position:absolute;top:8px;right:12px;background:none;border:none;color:#f44;
+ font-size:1.4rem;cursor:pointer;padding:4px 8px;line-height:1}
+.htp-btn:hover{color:#f88}
+@media(min-width:768px){
+  .htp-card{max-width:520px;padding:28px}
+  .htp-card h2{font-size:1.5rem}
+  .htp-card p{font-size:.75rem}
+}
 </style>
 </head>
 <body><div class="c">
@@ -236,6 +260,34 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div class="info" style="font-size:.65rem;color:#444;margin:4px 0" id="countryInfo">Detecting country...</div>
 <button class="b" onclick="doLogin()">ENTER</button>
 <div id="loginErr" style="color:#f44;font-size:.7rem;margin-top:6px"></div>
+<button class="b s" style="margin-top:8px" onclick="showHowToPlay()">📖 How to Play</button>
+</div>
+
+<!-- HOW TO PLAY -->
+<div class="htp-overlay" id="htpOverlay">
+<div class="htp-card">
+<button class="htp-btn" onclick="hideHowToPlay()">✕</button>
+<h2>📖 HOW TO PLAY</h2>
+<p>BrainWreck tests your <b>short-term memory</b>. Each level has <b>3 stages</b>. You see a sequence → memorize it → type it back correctly. Clear all 3 stages to unlock the next level. <b>9 levels</b> total — from Baby Brain 🍼 to THE MATRIX 💊.</p>
+
+<h3>🎮 The 4 Modes</h3>
+<p>Toggle them on the menu screen. <b>HARD works with SUM and COLOR!</b></p>
+
+<p><span class="mode-tag tag-n">NORMAL</span> Memorize digits, press <b>"I MEMORIZED IT"</b> when ready, then type them back within the time limit. Faster = more points (time bonus).</p>
+
+<p><span class="mode-tag tag-h">HARD ⚡</span> The countdown starts <b>automatically</b> — no "ready" button, no time bonus. Pure memory under pressure. <b>Works with SUM and COLOR.</b></p>
+
+<p><span class="mode-tag tag-s">SUM Σ</span> Instead of digits you see <b>"3 + 7 + 2"</b>. Calculate the total and enter the answer. <b>Works with HARD.</b></p>
+
+<p><span class="mode-tag tag-c">COLOR ⬡</span> Instead of digits you see <b>colored shapes</b> (● red, ■ blue, ▲ green, ★ yellow, ◆ purple). Tap the matching color buttons to reproduce the sequence. <b>Works with HARD.</b></p>
+
+<h3>🔥 Combos</h3>
+<p><span class="mode-tag tag-h">HARD</span><span class="mode-tag tag-s">SUM</span> Auto-countdown + math = brain on fire.</p>
+<p><span class="mode-tag tag-h">HARD</span><span class="mode-tag tag-c">COLOR</span> Auto-countdown + shapes = ultimate memory test.</p>
+
+<h3>🏆 Scoring & Stars</h3>
+<p>Points per correct answer, with time bonus in NORMAL mode. Earn <b>★ stars</b> (up to 3 per level) by clearing stages. Compete on the global leaderboard!</p>
+</div>
 </div>
 
 <!-- MENU -->
@@ -259,6 +311,7 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <button class="b o" onclick="showLB('global')">🌍 Global</button>
 <button class="b o" id="btnCountry" onclick="showLB('country')">🏳️ Country</button>
 <button class="b s" style="margin-top:4px" onclick="logout()">Change Player</button>
+<button class="b s" style="margin-top:4px" onclick="showHowToPlay()">📖 How to Play</button>
 </div>
 
 <!-- GAME -->
@@ -439,6 +492,14 @@ function updateOnlineStatus(){
 
 // ═══ SCREENS ═══
 function ss(id){document.querySelectorAll('.s').forEach(e=>e.classList.remove('a'));document.getElementById(id).classList.add('a')}
+
+// ═══ HOW TO PLAY ═══
+function showHowToPlay(){document.getElementById('htpOverlay').classList.add('show')}
+function hideHowToPlay(){document.getElementById('htpOverlay').classList.remove('show')}
+// Close popup on overlay click
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('htpOverlay').addEventListener('click',function(e){if(e.target===this)hideHowToPlay()})
+});
 
 // ═══ LOGIN ═══
 async function doLogin(){
