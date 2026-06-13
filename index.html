@@ -208,8 +208,6 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
     background:#0a0a1a;border:1px solid #1a2a1a;text-align:center}
   .desk-nav .b.o{border-color:#f804;color:#f80}
   .desk-nav .b.o:hover,.desk-nav .b.o:active{background:#f80;color:#000}
-  .desk-nav .b.s{font-size:.7rem;padding:10px 14px;border-color:#222;color:#666}
-  .desk-nav .b.s:hover,.desk-nav .b.s:active{background:#222;color:#0f0}
   .desk-main{flex:1;max-width:480px}
   .desk-side{width:260px;display:none;flex-shrink:0}
   .desk-side.show{display:block}
@@ -330,8 +328,8 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   <div class="desk-nav" id="deskNav">
     <button class="b o" onclick="showLB('global')">🌍 Global</button>
     <button class="b o" id="btnCountryD" onclick="showLB('country')">🏳️ Country</button>
-    <button class="b s" onclick="logout()">Change Player</button>
-    <button class="b s" onclick="showHowToPlay()">📖 How to Play</button>
+    <button class="b o" onclick="logout()">Change Player</button>
+    <button class="b o" onclick="showHowToPlay()">📖 How to Play</button>
   </div>
   <div class="desk-main">
     <div id="lvList" style="margin:10px 0"></div>
