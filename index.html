@@ -362,8 +362,10 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 
 <div id="phaseMemo">
 <div class="seq" id="seqD"></div>
-<button class="b c" id="memBtn" onclick="startTimer()" style="display:none;max-width:260px">I MEMORIZED IT</button>
-<button class="b s" id="chickenBtn" onclick="chickenOut()" style="display:none;margin-top:4px">nah, not ready… 🐔</button>
+<div style="display:flex;justify-content:center;gap:8px;align-items:stretch;margin:6px 0">
+<button class="b c" id="memBtn" onclick="startTimer()" style="display:none;flex:1;max-width:240px">I MEMORIZED IT</button>
+<button class="b s" id="chickenBtn" onclick="chickenOut()" style="display:none;flex:1;max-width:180px">nah, not ready… 🐔</button>
+</div>
 <div class="info" id="memoInfo">remember it… then press the button (or SPACE)</div>
 </div>
 <div id="phaseRecall" style="display:none"><div class="fb" id="fbEl"></div>
