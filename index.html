@@ -493,13 +493,29 @@ async function fetchLB(country){
     return await r.json();
   }catch(e){return[]}
 }
+async function checkName(name){
+  try{
+    let r=await fetch(SB_URL+'?limit=200');
+    let scores=await r.json();
+    let existing=scores.find(s=>s.username===name);
+    if(!existing)return true; // name available
+    // Name exists — check if OUR secret matches
+    return existing.secret===G.secret; // true if we own it, false if taken
+  }catch(e){return true} // server down → allow
+}
 async function postScore(){
   try{
     let r=await fetch(SB_URL,{method:'POST',headers:{'Content-Type':'application/json'},
      body:JSON.stringify({username:G.un,score:G.sc,country:G.country,secret:G.secret})});
     let d=await r.json();
     if(d.reason==='name_taken'){
-      console.warn('⚠ Name taken by another device — scores not saved to leaderboard');
+      // Visible warning — name locked by another device
+      let fb=document.getElementById('fbEl');
+      if(fb&&document.getElementById('phaseRecall').style.display!=='none'){
+        fb.innerHTML='⚠ Name locked<br><span style="font-size:.7rem;color:#f80">another device owns this name</span>';
+        fb.className='fb';fb.style.color='#f80';fb.style.display='';
+        setTimeout(()=>{fb.style.display='none';fb.textContent=''},4000);
+      }
     }
   }catch(e){
     // Offline — queue for later
@@ -552,9 +568,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 async function doLogin(){
   let n=document.getElementById('userIn').value.trim();
   if(n.length<2){document.getElementById('loginErr').textContent='At least 2 characters!';return}
-  G.un=n;ld();if(!G.sc)G.sc=0;
-  // Generate secret key if first time (or name changed)
-  if(!G.secret||G.un!==n){G.secret=genSecret()}
+  ld();let nameChanged=G.un!==n&&G.un!=='';
+  G.un=n;if(!G.sc)G.sc=0;
+  if(!G.secret||nameChanged){G.secret=genSecret()}
+  // Check with server if this name is already taken by another device
+  let available=await checkName(n);
+  if(!available){
+    document.getElementById('loginErr').textContent='⚠ Name taken by another device! Choose a different name.';
+    return
+  }
   sv();document.getElementById('loginErr').textContent='';showMenu()
 }
 function logout(){G.un='';G.sc=0;G.stars={};sv();document.body.className='';ss('login')}
