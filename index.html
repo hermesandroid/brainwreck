@@ -413,8 +413,10 @@ body.lv9::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 <div id="lvFail" class="s sl">
 <div class="big rd">WIPED OUT</div>
 <div class="info" style="font-size:.85rem;color:#888;margin:6px 0" id="flDetail"></div>
-<button class="b o" onclick="retryLv()">Retry</button>
-<button class="b s" style="margin-top:6px" onclick="quitToMenu()">Menu</button>
+<div style="display:flex;justify-content:center;align-items:center;flex-direction:column;gap:6px">
+<button class="b o" onclick="retryLv()" style="max-width:280px">Retry</button>
+<button class="b s" onclick="quitToMenu()" style="max-width:200px">Menu</button>
+</div>
 </div>
 
 <!-- LEADERBOARD -->
